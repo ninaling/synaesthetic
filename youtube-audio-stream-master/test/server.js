@@ -15,6 +15,9 @@ function demo (req, res) {
   if (req.url === '/video.js') {
     return fs.createReadStream(path.join(__dirname, '/video.js')).pipe(res)
   }
+  if (req.url === '/youtubeAudioClass.js') {
+    return fs.createReadStream(path.join(__dirname, '/youtubeAudioClass.js')).pipe(res)
+  }
   if (/youtube/.test(req.url)) {
     stream(req.url.slice(1)).pipe(res)
   }
