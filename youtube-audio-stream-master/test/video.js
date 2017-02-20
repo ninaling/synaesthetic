@@ -1,11 +1,72 @@
 var player;
+var analyser;
+var frequencyData;
+var sliceWidth;
+
+function youtubeAudio(link){
+  this.player = new window.Audio('www.youtube.com/watch?v=S-sJp1FfG7Q');
+  this.player.preload = 'metadata';
+  this.player.setAttribute("id", "audioPlayer");
+  this.player.controls = true;
+  document.body.appendChild(this.player);
+
+  this.audioCtx = new AudioContext();
+  this.audio = document.getElementById('audioPlayer');
+  this.audioSrc = this.audioCtx.createMediaElementSource(this.audio);
+
+  this.analyser = this.audioCtx.createAnalyser();
+  this.audioSrc.connect(this.analyser);
+  this.audioSrc.connect(this.audioCtx.destination);
+
+  this.frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
+  this.sliceWidth = 600 / analyser.frequencyBinCount; //600 hardcoded for now
+}
+
+function setup(){
+  player = new window.Audio('www.youtube.com/watch?v=S-sJp1FfG7Q')
+  player.preload = 'metadata'
+  player.setAttribute("id", "myAudio");
+  player.controls = true;
+  document.body.appendChild(player);
+
+  var ctx = new AudioContext();
+  var audio = document.getElementById('myAudio');
+  var audioSrc = ctx.createMediaElementSource(audio);
+  analyser = ctx.createAnalyser();
+  audioSrc.connect(analyser);
+  audioSrc.connect(ctx.destination);
+  frequencyData = new Uint8Array(analyser.frequencyBinCount);
+  sliceWidth = 600 * 1.0 / analyser.frequencyBinCount;
+  player.play();
+  createCanvas(600,600);
+}
+
+function draw(){
+  background(0);
+  analyser.getByteFrequencyData(frequencyData);
+  noFill();
+  beginShape();
+  stroke(255,255,255);
+  var x = 0;
+  var y = 0;
+  for (var i = 0; i < analyser.frequencyBinCount; i++) {
+    var v = frequencyData[i] / 128.0;
+    var y = v * 600 / 2;
+
+    vertex(x, y);
+
+    x += sliceWidth;
+  }
+  endShape();
+}
+
 //todo:
 //let users input youtube link
 //try using p5 and running analyser.getByteFrequencyData(frequencyData) in there
-
+/*
 window.addEventListener('load', function(){
 
-var player = new window.Audio('youtube.com/watch?v=uiUAq4aVTjY')
+var player = new window.Audio('youtube.com/watch?v=d3hTyKlza2c')
 player.preload = 'metadata'
 player.setAttribute("id", "myAudio");
 player.controls = true
@@ -72,3 +133,4 @@ player.play()
 draw();
 
 }, false);
+*/

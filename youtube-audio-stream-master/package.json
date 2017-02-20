@@ -8,7 +8,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "cat ./test/video.js | node ./node_modules/indexhtmlify/index.js > ./test/server.html && node ./test/server.js",
+    "test": "node ./test/server.js",
     "prepublish": "standard"
   },
   "keywords": [
