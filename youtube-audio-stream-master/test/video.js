@@ -12,6 +12,7 @@ function setup(){
 function draw(){
   background(0);
   fftbins = audio.FFT();
+  console.log(audio.getBass());
   noFill();
   beginShape();
   stroke(255,255,255);
