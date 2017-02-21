@@ -1,6 +1,6 @@
 var http = require('http')
 var fs = require('fs')
-var stream = require('./index.js')
+var stream = require('./js/youtubeaudiostream.js')
 var path = require('path');
 
 http.createServer(demo).listen(3000);
