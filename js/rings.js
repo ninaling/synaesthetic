@@ -72,19 +72,38 @@ $(document).on('ready', function() {
 
         camera.position.z = 3;
         camera.position.y = 2;
-        camera.position.x = 2;
 
         var renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(width, height);
         renderer.setClearColor( 0x000000, 0 ); // the default
 
+        var orbit = new THREE.Object3D();
+        scene.add(orbit);
+
+        (function addOrbitPath () {
+            var radius = 2,
+            segments = 64,
+            material = new THREE.LineBasicMaterial( { color: 0xffffff } ),
+            geometry = new THREE.CircleGeometry( radius, segments );
+
+            // Remove center vertex
+            geometry.vertices.shift();
+
+            orbitPath = new THREE.Line( geometry, material );
+
+            orbitPath.rotation.x = Math.PI/2;
+
+            scene.add(orbitPath);
+        })();
+
         var sphere = createSphere(radius, segments);
         sphere.rotation.y = rotation;
-        scene.add(sphere);
+        sphere.position.x = 2;
+        orbit.add(sphere);
 
         var rings = createRings(radius, segments);
         rings.rotation.y = rotation;
-        scene.add(rings);
+        sphere.add(rings);
 
       //  var background = createBackground(90, 64);
       //  scene.add(background);
@@ -109,6 +128,8 @@ $(document).on('ready', function() {
         	
         	sphere.rotation.x += 0.02;
         	sphere.rotation.y += 0.05;
+
+            orbit.rotation.y += 0.02;
 
         	requestAnimationFrame(render);
         	renderer.render(scene, camera);
