@@ -4,6 +4,8 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "express": "^4.14.1",
+    "ffmpeg": "^0.0.4",
     "fluent-ffmpeg": "2.1.0",
     "through2": "2.0.3",
     "xtend": "4.0.1",

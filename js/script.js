@@ -1,5 +1,7 @@
 "use strict";
 
+var c;
+
 var system;
 var s;
 
@@ -11,26 +13,26 @@ var winHeight = window.innerHeight;
 var mic;
 var fft;
 
-var bassLevelArr = [0, 0, 0, 0, 0];
-var i = 0;
-
+var winWidth = window.innerWidth;
+var winHeight = window.innerHeight;
 
 function setup(){
-  mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
-	createCanvas(winWidth, winHeight);
+	c = createCanvas(winWidth, winHeight);
 	system = new ParticleSystem(400, 10);
 
+  mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
 	mic.play();
 }
 
 function draw() {
+  c.size(window.innerWidth, window.innerHeight);
 
 	var spectrum = mic.FFT();
 	var bassLevel = mic.getBass();
 
-	var bassLevelMultiplierRolling = bassLevel > 200 ? (bassLevel - 95)/8 : 1;
+	var bassLevelMultiplier = bassLevel > 200 ? (bassLevel - 95)/8 : 1;
 	var props = {
-		bassLevelMultiplier: bassLevelMultiplierRolling
+		bassLevelMultiplier: bassLevelMultiplier
 	};
 
 	background(darkPurple);

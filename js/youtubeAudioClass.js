@@ -3,7 +3,7 @@ function youtubeAudio(link){
   this.player.preload = 'metadata';
   this.player.setAttribute("id", "audioPlayer");
   this.player.controls = true;
-  document.body.appendChild(this.player);
+   document.getElementById('audio-container').appendChild(this.player);
 
   this.audioCtx = new AudioContext();
   this.audio = document.getElementById('audioPlayer');

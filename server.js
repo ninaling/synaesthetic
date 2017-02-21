@@ -2,7 +2,28 @@ var http = require('http')
 var fs = require('fs')
 var stream = require('./js/youtubeaudiostream.js')
 var path = require('path');
+var express = require('express');
+var path = require('path');
 
+var app = express();
+
+app.use(express.static(__dirname));
+
+app.get(/^\/watch/, function (req, res) {
+  res.sendFile(path.join(__dirname + '/index.html'));
+});
+
+app.get(/youtube/, function (req, res) {
+  stream(req.url.slice(1)).pipe(res);
+})
+
+app.set('port', process.env.PORT || 3000);
+
+var server = app.listen(app.get('port'), "localhost", function() {
+  console.log('open http://localhost:3000 for demo of audio stream')
+})
+
+/*
 http.createServer(demo).listen(3000);
 
 function demo (req, res) {
@@ -20,8 +41,8 @@ function demo (req, res) {
     return fs.createReadStream(path.join(__dirname, '/js/youtubeAudioClass.js')).pipe(res)
   }
   if (/youtube/.test(req.url)) {
+    console.log("fdsafdsafda");
     stream(req.url.slice(1)).pipe(res)
   }
 }
-
-console.log('open http://localhost:3000 for demo of audio stream')
+*/
