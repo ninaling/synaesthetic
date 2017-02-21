@@ -14,7 +14,7 @@ $(document).on('ready', function() {
         var width = window.innerWidth,
             height = window.innerHeight;
         var radius = 0.45,
-        	segments = 32,
+        	segments = 3,
         	rotation = 5;
 
         var scene = new THREE.Scene();
@@ -73,12 +73,12 @@ $(document).on('ready', function() {
 		    camera.updateProjectionMatrix();
 		});
 
-        noise = orbitPath.geometry.vertices.map(() => Math.random());
+        noiseForPath = orbitPath.geometry.vertices.map(() => Math.random());
         rollwindow = 10;
-        avg = noise.slice(0,rollwindow).reduce((acc, val) => acc+val, 0)*1.0/rollwindow;
-        smoothnoise = noise.map((val, i) => {
-            avg += noise[(i+rollwindow)%noise.length]*1.0/rollwindow;
-            avg -= noise[i]*1.0/rollwindow;
+        avg = noiseForPath.slice(0,rollwindow).reduce((acc, val) => acc+val, 0)*1.0/rollwindow;
+        smoothnoise = noiseForPath.map((val, i) => {
+            avg += noiseForPath[(i+rollwindow)%noiseForPath.length]*1.0/rollwindow;
+            avg -= noiseForPath[i]*1.0/rollwindow;
             return avg;
         });
 

@@ -1,0 +1,40 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+
+#container {
+	width: 100vw;
+	height: 100vh;
+	position: relative;
+}
+
+#audio-container {
+	width: 100vw;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	padding: 5vh 0;
+	text-align: center;
+	opacity: 0;
+	transition: all .5s ease;
+	z-index: 10;
+}
+
+#audio-container:hover {
+	opacity: 1;
+}
+
+canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: -1;
+}
+
+#webgl{
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	z-index: 5;
+}

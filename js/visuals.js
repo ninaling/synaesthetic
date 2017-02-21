@@ -8,41 +8,72 @@ var darkPurple = '#270227';
 var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
+var mic;
+var fft;
+
+var bassLevelArr = [0, 0, 0, 0, 0];
+var i = 0;
+
+function preload(){
+	mic = loadSound('../assets/pluto.mp3');
+}
+
 function setup(){
 	createCanvas(winWidth, winHeight);
-	system = new ParticleSystem(100, 10);
+	system = new ParticleSystem(400, 10);
+
+	//sound stuff
+	// mic = new p5.AudioIn();
+  // mic.start();
+	mic.play();
+
+  fft = new p5.FFT();
+  // fft.setInput(mic);
 }
 
 function draw() {
+
+	var micLevel = mic.getLevel();
+	var spectrum = fft.analyze();
+	var bassLevel = fft.getEnergy("bass");
+	// bassLevelArr[i] = bassLevel > 230 ? (bassLevel - 110)/8 : 1;
+	console.log(bassLevel);
+  // if (i == 5) i = 0;
+  // else i++;
+
+	// var bassLevelMultiplierRolling = getMean(bassLevelArr, 5);
+
+	var bassLevelMultiplierRolling = bassLevel > 230 ? (bassLevel - 110)/8 : 1;
+	var props = {
+		bassLevelMultiplier: bassLevelMultiplierRolling
+	};
+
 	background(darkPurple);
-	system.run();
+	system.run(props);
 	system.addParticle();
 }
 
 var Particle = function(radius){
 
-	console.log('init particle')
-
-	//random generation
-	this.generateRandom();
-
 	//max properties
 	this.velocityMax = 10;
 	this.radiusMax = radius;
 
-	//derived properties from random
+	//random generation
+	this.generateRandom();
+
+//derived properties from random
 	this.velocity = createVector(
-						this.randomX * this.velocityMax * 2 - this.velocityMax,
-						(this.randomY * this.velocityMax * 2 - this.velocityMax)/1 //divide by 3 to lessen y, particles moving out of screen 
+						(this.randomX * this.velocityMax * 1.4 - this.velocityMax * 0.85)/10,
+						(this.randomY * this.velocityMax * 1.4 - this.velocityMax * 0.85)/20 //divide by 3 to lessen y particles moving out of screen
 					);
 
-	console.log(this.velocity.x + ', ' + this.velocity.y);
+	//random generation again so large particles aren't all in southeast direction
+	this.generateRandom();
 
-	//this.velocityScalar = sqrt(sq(this.velocity.x) + sq(this.velocity.y));
-	//this.position = this.velocity.x > 0 ? createVector(0, random(height)) : createVector(width, random(height))
-	this.position = createVector(mouseX, mouseY);
-	this.radius = this.radiusMax * (this.randomX + this.randomY) / 2;
-	this.opacity = (this.randomX + this.randomY) / 2;
+	this.position = createVector(winWidth/2, winHeight/2);
+	this.radius = this.radiusMax * (this.randomX + this.randomY) / 3.5;
+	this.opacity = (this.randomX + this.randomY) / 2.5;
 }
 
 Particle.prototype.generateRandom = function(){
@@ -50,13 +81,14 @@ Particle.prototype.generateRandom = function(){
 	this.randomY = random(1);
 }
 
-Particle.prototype.run = function(){
-	this.update();
+Particle.prototype.run = function(bassLevelMultiplier){
+	this.update(bassLevelMultiplier);
 	this.display();
 }
 
-Particle.prototype.update = function(){
-	this.position.add(this.velocity);
+Particle.prototype.update = function(bassLevelMultiplier){
+	var tempVector = this.velocity.copy().mult(bassLevelMultiplier);
+	this.position.add(tempVector);
 }
 
 Particle.prototype.display = function(){
@@ -115,24 +147,24 @@ ParticleSystem.prototype.addParticle = function() {
 	if(this.particles.length < this.maxParticles)
 		this.particles.push(new Particle(this.particlesSize));
 
-	if(this.suns.length < 2)
-		this.suns.push(new Sun(400));
+	// if(this.suns.length < 2)
+	// 	this.suns.push(new Sun(400));
 };
 
-ParticleSystem.prototype.run = function() {
+ParticleSystem.prototype.run = function(props) {
 
-	for(var i = this.suns.length - 1; i >= 0; i--){
-		var s = this.suns[i];
-		s.run();
-
-		if(s.isDead())
-			this.suns.splice(i, 1);
-	}
+	// for(var i = this.suns.length - 1; i >= 0; i--){
+	// 	var s = this.suns[i];
+	// 	s.run();
+	//
+	// 	if(s.isDead())
+	// 		this.suns.splice(i, 1);
+	// }
 
 	for (var i = this.particles.length-1; i >= 0; i--) {
 
 		var p = this.particles[i];
-		p.run();
+		p.run(props.bassLevelMultiplier);
 
 		if (p.isDead()){
 			this.particles.splice(i, 1);
@@ -140,100 +172,8 @@ ParticleSystem.prototype.run = function() {
 	}
 };
 
-/*
-Cool stuff to look at later:
-http://jsfiddle.net/juansrx/orb3kmjk/
-http://jsfiddle.net/juansrx/myv5kg9t/
-http://jsfiddle.net/juansrx/namq3has/
-http://jsfiddle.net/juansrx/pnokeavu/
-https://codepen.io/dissimulate/pen/fhjvk
-
-*/
-
-//stuff I gave up on
-/*
-
-Particle.prototype.display = function () {
-
-	//tail of asteroid
-	//length is proportional to velocity
-	beginShape();
-	strokeWeight(this.radius);
-	stroke('rgba(47, 254, 225, ' + this.opacity + ')');
-	vertex(this.position.x, this.position.y);
-	vertex(this.position.x - this.velocity.x * this.velocityScalar * 20, this.position.y - this.velocity.y * this.velocityScalar * 20);
-	endShape(CLOSE);
-
-	beginShape();
-	strokeWeight(this.radius * 0.9);
-	stroke(purple);
-	vertex(this.position.x - this.velocity.x * this.velocityScalar * 5, this.position.y - this.velocity.y * this.velocityScalar * 5);
-	vertex(this.position.x, this.position.y);
-	endShape(CLOSE);
-
-	//head of asteroid
-	stroke(purple);
-	strokeWeight(this.radius * 0.1);
-	fill('rgb(252,41,125)');
-	ellipse(this.position.x, this.position.y, this.radius * 0.8, this.radius * 0.8);
-
-	//this.drawTail('rgb(0,0,0)', 0.2, [4, 3, 2, 1, 2, 5, 3], 0);
-	//this.drawTail(purple, 0.45, [3, 2, 1, 2], this.velocityScalar * 20);
-	//this.drawTail('rgba(47, 254, 225)', 0.45, [3, 2, 1, 2], this.velocityScalar * 20 + this.radius/2);
-};
-
-Particle.prototype.drawTail = function(color, thickness, trailStagger, lengthFromHead){
-
-	var stagger = - (trailStagger.length - 1)/2 * thickness;
-
-	for(var i = 0; i < 1; i++){
-
-		stroke(color);
-		strokeWeight(thickness * this.radius/2);
-
-		push();
-
-		beginShape();
-
-		var rad = radians(45);
-		translate(width/3, -370);
-		rotate(rad);
-
-		//tail
-		vertex(this.position.x - this.velocity.x * this.velocityScalar * trailStagger[i], 
-			   this.radius/2 * stagger + this.position.y);
-
-		//head
-		vertex(this.position.x,
-			   this.radius/2 * stagger + this.position.y);
-
-		endShape(CLOSE);
-
-		pop();
-		stagger += thickness;
-	}
+function getMean(arr, n) {
+  var sum = 0;
+  for (var k = 0; k < n; k++) sum += arr[k];
+  return sum / n;
 }
-
-function drawCurves(){
-	background(0);
-	noFill();
-	beginShape();
-	stroke(255);
-	curveVertex(84,  91);
-	curveVertex(84,  91);
-	curveVertex(68,  19);
-	curveVertex(21,  17);
-	curveVertex(32, 100);
-	curveVertex(32, 100);
-	endShape();
-
-	//background (255, 255, 255);
-	smooth();
-	//fill(142, 199, 242);
-	//arc(150, 150, 300, 300, 0, PI/2);
-	translate(-50, 0);
-	arc(150, 150, 300, 300, radians(180), radians(360));
-}
-
-*/
-
