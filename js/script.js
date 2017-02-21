@@ -1,15 +1,21 @@
+var c;
+
 var player;
 var fftbins;
+
+var winWidth = window.innerWidth;
+var winHeight = window.innerHeight;
 
 function setup(){
   var x = window.location.href;
   console.log(x.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
   audio = new youtubeAudio(x.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
   audio.play();
-  createCanvas(600,600);
+  c = createCanvas(winWidth,winHeight);
 }
 
 function draw(){
+  c.size(window.innerWidth, window.innerHeight);
   background(0);
   fftbins = audio.FFT();
   console.log(audio.getBass());
