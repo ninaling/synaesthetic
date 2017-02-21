@@ -49,15 +49,18 @@ Planet.prototype.display = function(){
 */
 
 $(document).on('ready', function() {
+
 	(function() {
 
 		var webglEl = document.getElementById('webgl');
+
 		if (!Detector.webgl) {
 			Detector.addGetWebGLMessage(webglEl);
 			return;
 		} 
 
         THREE.ImageUtils.crossOrigin = '';
+
         var width = window.innerWidth,
             height = window.innerHeight;
         var radius = 0.45,
@@ -71,8 +74,9 @@ $(document).on('ready', function() {
         camera.position.y = 2;
         camera.position.x = 2;
 
-        var renderer = new THREE.WebGLRenderer();
+        var renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(width, height);
+        renderer.setClearColor( 0x000000, 0 ); // the default
 
         var sphere = createSphere(radius, segments);
         sphere.rotation.y = rotation;
@@ -82,15 +86,30 @@ $(document).on('ready', function() {
         rings.rotation.y = rotation;
         scene.add(rings);
 
+      //  var background = createBackground(90, 64);
+      //  scene.add(background);
+
         var controls = new THREE.TrackballControls(camera);
         webglEl.appendChild(renderer.domElement);
 
         render();
 
+        window.addEventListener('resize', function() {
+		    var WIDTH = window.innerWidth,
+		        HEIGHT = window.innerHeight;
+		    renderer.setSize(WIDTH, HEIGHT);
+		    camera.aspect = WIDTH / HEIGHT;
+		    camera.updateProjectionMatrix();
+		});
+
         function render() {
         	controls.update();
-        	//sphere.rotation.y += 0.05;
-        	//rings.rotation.y += 0.02;
+        	rings.rotation.y += 0.05;
+        	rings.rotation.x += 0.05;
+        	
+        	sphere.rotation.x += 0.02;
+        	sphere.rotation.y += 0.05;
+
         	requestAnimationFrame(render);
         	renderer.render(scene, camera);
         }
@@ -99,7 +118,8 @@ $(document).on('ready', function() {
         		new THREE.SphereGeometry(radius, segments, segments),
         		new THREE.MeshBasicMaterial(
         			{
-        				color: '#ed4c51'
+        				color: '#ed4c51',
+        				wireframe: true
         			}
         		)
         	);
@@ -109,11 +129,24 @@ $(document).on('ready', function() {
         			new THREE.MeshBasicMaterial(
         				{	
         					color: '#f8de5c',
-        					side: THREE.DoubleSide, transparent: true, opacity: 0.6 
+        					wireframe: true,
+        					side: THREE.DoubleSide, transparent: true, opacity: 0.9
         				}
         			)
         		);
         }
+
+       /* function createBackground(radius, segments) {
+        	return new THREE.Mesh(
+        		new THREE.SphereGeometry(radius, segments, segments),
+        		new THREE.MeshBasicMaterial(
+        			{
+        				//map: THREE.ImageUtils.loadTexture('https://cdn.rawgit.com/bubblin/The-Solar-System/master/images/shared/galaxy_starfield.jpg'),
+        				color: 'rgb(255,0,0)',
+        				side: THREE.BackSide, transparent: true, opacity: 0
+        			})
+        		); 
+        } */
 
 	}());
 });
