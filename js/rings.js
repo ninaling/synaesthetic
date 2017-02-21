@@ -70,19 +70,16 @@ $(document).on('ready', function() {
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(45, width / height, 0.05, 1000);
 
-        camera.position.z = 3;
+        camera.position.z = 5;
         camera.position.y = 2;
 
         var renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(width, height);
         renderer.setClearColor( 0x000000, 0 ); // the default
 
-        var orbit = new THREE.Object3D();
-        scene.add(orbit);
-
-        (function addOrbitPath () {
+        orbitPath = (function createOrbitPath () {
             var radius = 2,
-            segments = 64,
+            segments = 256,
             material = new THREE.LineBasicMaterial( { color: 0xffffff } ),
             geometry = new THREE.CircleGeometry( radius, segments );
 
@@ -94,12 +91,14 @@ $(document).on('ready', function() {
             orbitPath.rotation.x = Math.PI/2;
 
             scene.add(orbitPath);
+            return orbitPath;
         })();
+
+        orbitIndex = 0;
 
         var sphere = createSphere(radius, segments);
         sphere.rotation.y = rotation;
-        sphere.position.x = 2;
-        orbit.add(sphere);
+        orbitPath.add(sphere);
 
         var rings = createRings(radius, segments);
         rings.rotation.y = rotation;
@@ -129,7 +128,9 @@ $(document).on('ready', function() {
         	sphere.rotation.x += 0.02;
         	sphere.rotation.y += 0.05;
 
-            orbit.rotation.y += 0.02;
+            orbitIndex = (orbitIndex+1) % orbitPath.geometry.vertices.length;
+            var newpos = orbitPath.geometry.vertices[orbitIndex];
+            sphere.position.set(newpos.x, newpos.y, newpos.z);
 
         	requestAnimationFrame(render);
         	renderer.render(scene, camera);
