@@ -52,47 +52,112 @@ $(document).on('ready', function() {
 
 	(function() {
 
-		var webglEl = document.getElementById('webgl');
+		var width = window.innerWidth,
+	        height = window.innerHeight;
+	    var radius = 0.45,
+	       	segments = 30,
+	        rotation = 5;
+	    var isWireFrame = true;
+	    var scene, camera, controls, renderer;
+	    var sphere, rings;
 
-		if (!Detector.webgl) {
-			Detector.addGetWebGLMessage(webglEl);
-			return;
-		} 
+		init();
 
-        THREE.ImageUtils.crossOrigin = '';
+		function init(){
+			var webglEl = document.getElementById('webgl');
 
-        var width = window.innerWidth,
-            height = window.innerHeight;
-        var radius = 0.45,
-        	segments = 32,
-        	rotation = 5;
+			if (!Detector.webgl) {
+				Detector.addGetWebGLMessage(webglEl);
+				return;
+			} 
 
-        var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(45, width / height, 0.05, 1000);
+	        THREE.ImageUtils.crossOrigin = '';
 
-        camera.position.z = 3;
-        camera.position.y = 2;
-        camera.position.x = 2;
+	        scene = new THREE.Scene();
+	        camera = new THREE.PerspectiveCamera(45, width / height, 0.05, 1000);
 
-        var renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(width, height);
-        renderer.setClearColor( 0x000000, 0 ); // the default
+	        camera.position.z = 3;
+	        camera.position.y = 2;
+	        camera.position.x = 2;
 
-        var sphere = createSphere(radius, segments);
-        sphere.rotation.y = rotation;
-        scene.add(sphere);
+	        renderer = new THREE.WebGLRenderer({ alpha: true });
+	        renderer.setSize(width, height);
+	        renderer.setClearColor( 0x000000, 0 ); // the default
 
-        var rings = createRings(radius, segments);
-        rings.rotation.y = rotation;
-        scene.add(rings);
+	        sphere = createSphere(radius, segments);
+	        sphere.rotation.y = rotation;
+	        scene.add(sphere);
 
-      //  var background = createBackground(90, 64);
-      //  scene.add(background);
+	        rings = createRings(radius, segments);
+	        rings.rotation.y = rotation;
+	        scene.add(rings);
 
-        var controls = new THREE.TrackballControls(camera);
-        webglEl.appendChild(renderer.domElement);
+	      //  var background = createBackground(90, 64);
+	      //  scene.add(background);
 
-        render();
+	        controls = new THREE.TrackballControls(camera);
+	        webglEl.appendChild(renderer.domElement);
+
+	        render();
+	        
+		}
+		var first = true;
+        function render() {
+
+        	if(first){
+        		controls.update();
+        		//disables mouse control
+        		//first = false;
+        	}
+        	rings.rotation.y += 0.05;
+        	rings.rotation.x += 0.05;
+        	//rings.rotation.z += 0.05;
+
+ 			//sphere = createSphere(radius, segments++);
+        	
+        	sphere.rotation.x += 0.02;
+        	sphere.rotation.y += 0.05;
+
+        	requestAnimationFrame(render);
+        	renderer.render(scene, camera);
+
+        	//update(new THREE.Vector3(0.01, 0.01, 0.01));
+        }
+
+        function update(dir){
+        	sphere.position.x += dir.x;
+        	rings.position.x += dir.x;
+
+        	sphere.position.y += dir.y;
+        	rings.position.y += dir.y;
+
+        	sphere.position.z += dir.z;
+        	rings.position.z += dir.z;
+        }
+
+        function createSphere(radius, segments) {
+        	return new THREE.Mesh(
+        		new THREE.SphereGeometry(radius, segments, segments),
+        		new THREE.MeshBasicMaterial(
+        			{
+        				color: '#ed4c51',
+        				wireframe: isWireFrame
+        			}
+        		)
+        	);
+        }
+        function createRings(radius, segments) {
+        	return new THREE.Mesh(
+        		new THREE.XRingGeometry(1.2 * radius, 2 * radius, 2 * segments, 5, 0, Math.PI * 2),
+        		new THREE.MeshBasicMaterial(
+        			{	
+        				color: '#f8de5c',
+        				wireframe: isWireFrame,
+        				side: THREE.DoubleSide, transparent: true, opacity: 0.9
+        			}
+        		)
+        	);
+        }
 
         window.addEventListener('resize', function() {
 		    var WIDTH = window.innerWidth,
@@ -101,40 +166,6 @@ $(document).on('ready', function() {
 		    camera.aspect = WIDTH / HEIGHT;
 		    camera.updateProjectionMatrix();
 		});
-
-        function render() {
-        	controls.update();
-        	rings.rotation.y += 0.05;
-        	rings.rotation.x += 0.05;
-        	
-        	sphere.rotation.x += 0.02;
-        	sphere.rotation.y += 0.05;
-
-        	requestAnimationFrame(render);
-        	renderer.render(scene, camera);
-        }
-        function createSphere(radius, segments) {
-        	return new THREE.Mesh(
-        		new THREE.SphereGeometry(radius, segments, segments),
-        		new THREE.MeshBasicMaterial(
-        			{
-        				color: '#ed4c51',
-        				wireframe: true
-        			}
-        		)
-        	);
-        }
-        function createRings(radius, segments) {
-        	return 	new THREE.Mesh(new THREE.XRingGeometry(1.2 * radius, 2 * radius, 2 * segments, 5, 0, Math.PI * 2),
-        			new THREE.MeshBasicMaterial(
-        				{	
-        					color: '#f8de5c',
-        					wireframe: true,
-        					side: THREE.DoubleSide, transparent: true, opacity: 0.9
-        				}
-        			)
-        		);
-        }
 
        /* function createBackground(radius, segments) {
         	return new THREE.Mesh(
