@@ -1,0 +1,26 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+
+#container {
+	width: 100vw;
+	height: 100vh;
+	position: relative;
+}
+
+#audio-container {
+	width: 100vw;
+	height: 20vh;
+	position: absolute;
+	left: 0;
+	bottom: 5vh;
+}
+
+canvas {
+	width: 100vw;
+	height: 100vh;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
