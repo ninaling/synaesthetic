@@ -6,7 +6,8 @@ var path = require('path');
 http.createServer(demo).listen(3000);
 
 function demo (req, res) {
-  if (req.url === '/') {
+	console.log(req.url);
+  if (req.url === '/' || /^\/watch/.test(req.url)) {
     return fs.createReadStream(path.join(__dirname, '/server.html')).pipe(res)
   }
   if (req.url === '/p5.js') {

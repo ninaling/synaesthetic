@@ -2,7 +2,9 @@ var player;
 var fftbins;
 
 function setup(){
-  audio = new youtubeAudio('www.youtube.com/watch?v=S-sJp1FfG7Q');
+  var x = window.location.href;
+  console.log(x.replace(/localhost[^\/]*\//, "www.youtube.com/"));
+  audio = new youtubeAudio(x.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
   audio.play();
   createCanvas(600,600);
 }
