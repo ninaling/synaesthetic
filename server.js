@@ -5,6 +5,24 @@ var path = require('path');
 var express = require('express');
 var path = require('path');
 
+var app = express();
+
+app.use(express.static(__dirname));
+
+app.get(/^\/watch/, function (req, res) {
+  res.sendFile(path.join(__dirname + '/index.html'));
+});
+
+app.get(/youtube/, function (req, res) {
+  stream(req.url.slice(1)).pipe(res);
+})
+
+app.set('port', process.env.PORT || 3000);
+
+var server = app.listen(app.get('port'), "localhost", function() {
+  console.log('open http://localhost:3000 for demo of audio stream')
+})
+
 /*
 http.createServer(demo).listen(3000);
 
@@ -28,21 +46,3 @@ function demo (req, res) {
   }
 }
 */
-
-var app = express();
-
-app.use(express.static(__dirname));
-
-app.get(/^\/watch/, function (req, res) {
-  res.sendFile(path.join(__dirname + '/index.html'));
-});
-
-app.get(/youtube/, function (req, res) {
-  stream(req.url.slice(1)).pipe(res);
-})
-
-app.set('port', process.env.PORT || 3000);
-
-var server = app.listen(app.get('port'), "localhost", function() {
-  console.log('open http://localhost:3000 for demo of audio stream')
-})
