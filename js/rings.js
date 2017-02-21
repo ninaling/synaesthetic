@@ -79,14 +79,17 @@ $(document).on('ready', function() {
 
         orbitPath = (function createOrbitPath () {
             var radius = 2,
-            segments = 256,
-            material = new THREE.LineBasicMaterial( { color: 0xffffff } ),
-            geometry = new THREE.CircleGeometry( radius, segments );
+                segments = 256,
+                material = new THREE.LineBasicMaterial( { color: 0xffffff } ),
+                geometry = new THREE.CircleGeometry( radius, segments );
+
+            geometry.verticesNeedUpdate = true;
+            geometry.dynamic = true;
 
             // Remove center vertex
             geometry.vertices.shift();
 
-            orbitPath = new THREE.Line( geometry, material );
+            var orbitPath = new THREE.Line( geometry, material );
 
             orbitPath.rotation.x = Math.PI/2;
 
@@ -120,7 +123,60 @@ $(document).on('ready', function() {
 		    camera.updateProjectionMatrix();
 		});
 
+        noise = orbitPath.geometry.vertices.map(() => Math.random());
+        rollwindow = 10;
+        avg = noise.slice(0,rollwindow).reduce((acc, val) => acc+val, 0)*1.0/rollwindow;
+        smoothnoise = noise.map((val, i) => {
+            avg += noise[(i+rollwindow)%noise.length]*1.0/rollwindow;
+            avg -= noise[i]*1.0/rollwindow;
+            return avg;
+        });
+
+        //connect mic
+        var aCtx;
+        var analyser;
+        var microphone;
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia({audio: true}, function(stream) {
+                aCtx = new AudioContext();
+                analyser = aCtx.createAnalyser();
+                microphone = aCtx.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                // analyser.connect(aCtx.destination);
+            }, function (error) { console.log(error); });
+        };
+
+        minVolume = 10000;
+        maxVolume = -10000;
+
+        console.log(orbitPath.geometry.vertices);
+
+        var afterFirstRender = false;
+
         function render() {
+            if (afterFirstRender) {
+                // needs to be set after first render?
+                orbitPath.geometry.verticesNeedUpdate = true;
+            }
+
+            (function () {
+                if (analyser) {
+                    FFTData = new Float32Array(analyser.frequencyBinCount);
+                    analyser.getFloatFrequencyData(FFTData);
+                    avgVolume = (FFTData.reduce((acc, val) => acc+val, 0))/FFTData.length;
+
+                    if (avgVolume < -10000 || avgVolume > 10000) return;
+
+                    minVolume = Math.min(avgVolume, minVolume);
+                    maxVolume = Math.max(avgVolume, maxVolume);
+
+                    var scale = (avgVolume-minVolume)/(maxVolume-minVolume);
+                    for (var i = 0; i < smoothnoise.length; i++) {
+                        orbitPath.geometry.vertices[i].setZ(scale*smoothnoise[i]);
+                    }
+                }
+            })();
+
         	controls.update();
         	rings.rotation.y += 0.05;
         	rings.rotation.x += 0.05;
@@ -134,6 +190,8 @@ $(document).on('ready', function() {
 
         	requestAnimationFrame(render);
         	renderer.render(scene, camera);
+
+            afterFirstRender = true;
         }
         function createSphere(radius, segments) {
         	return new THREE.Mesh(
