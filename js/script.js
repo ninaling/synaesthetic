@@ -3,7 +3,7 @@ var fftbins;
 
 function setup(){
   var x = window.location.href;
-  console.log(x.replace(/localhost[^\/]*\//, "www.youtube.com/"));
+  console.log(x.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
   audio = new youtubeAudio(x.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
   audio.play();
   createCanvas(600,600);
