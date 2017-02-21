@@ -153,6 +153,26 @@ $(document).on('ready', function() {
 
         var afterFirstRender = false;
 
+        class RollingAverage {
+            constructor(size) {
+                this.size = size;
+                this.vals = new Array(size).fill(0);
+                this.index = 0;
+                this.avg = 0;
+            }
+            next (val) {
+                this.avg -= this.vals[this.index];
+                this.vals[this.index] = val*1.0/this.size;
+                this.avg += this.vals[this.index];
+                this.index = (this.index+1)%this.size;
+                return this.avg;
+            }
+        }
+
+        var longRoller = new RollingAverage(10);
+
+        var maxScale = 0;
+
         function render() {
             if (afterFirstRender) {
                 // needs to be set after first render?
@@ -167,12 +187,14 @@ $(document).on('ready', function() {
 
                     if (avgVolume < -10000 || avgVolume > 10000) return;
 
-                    minVolume = Math.min(avgVolume, minVolume);
-                    maxVolume = Math.max(avgVolume, maxVolume);
+                    var shortAvg = avgVolume; // shortRoller.next(avgVolume);
+                    var longAvg = longRoller.next(avgVolume);
 
-                    var scale = (avgVolume-minVolume)/(maxVolume-minVolume);
+                    var scale = Math.max(shortAvg-longAvg, 0);
+                    maxScale = Math.max(scale, maxScale);
+                    var normalized = scale/maxScale;
                     for (var i = 0; i < smoothnoise.length; i++) {
-                        orbitPath.geometry.vertices[i].setZ(scale*smoothnoise[i]);
+                        orbitPath.geometry.vertices[i].setZ(normalized*smoothnoise[i]);
                     }
                 }
             })();
