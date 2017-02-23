@@ -37,21 +37,41 @@ function setup() {
    createCanvas(710,400);
    noFill();
 
+
+// MIC INPUT
    // mic = new p5.AudioIn();
    // mic.start();
    // fft = new p5.FFT();
    // fft.setInput(mic);
+   // peakDetect = new p5.PeakDetect();
 
+// LOAD SONG
     soundFile = hapax;
-    soundFile.play();
+    // soundFile.play(); //comment out if want mouse-clicking play
     fft = new p5.FFT();
-    // peakDetect = new p5.PeakDetect();
+    peakDetect = new p5.PeakDetect();
 }
-//
+
 function draw() {
    background(200);
    var spectrum = fft.analyze();
 
+
+// BEAT DETECTION
+     peakDetect.update(fft);
+     console.log(peakDetect.isDetected);
+
+     if ( peakDetect.isDetected ) {
+         //stars effect
+       ellipseWidth = 50;
+     } else {
+       ellipseWidth *= 0.95;
+     }
+   //
+     ellipse(width/2, height/2, ellipseWidth, ellipseWidth);
+
+
+// FREQUENCY VISUALIZATION
    beginShape();
    for (i = 0; i<spectrum.length; i++) {
     var freqVal = map(spectrum[i], 0, 255, height, 0);
@@ -111,12 +131,12 @@ function draw() {
 // }
 //
 // // toggle play/stop when canvas is clicked
-// function mouseClicked() {
-//   if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
-//     if (soundFile.isPlaying() ) {
-//       soundFile.stop();
-//     } else {
-//       soundFile.play();
-//     }
-//   }
-// }
+function mouseClicked() {
+  if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+    if (soundFile.isPlaying() ) {
+      soundFile.stop();
+    } else {
+      soundFile.play();
+    }
+  }
+}
