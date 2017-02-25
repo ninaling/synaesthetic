@@ -22,10 +22,14 @@ function youtubeAudio(link){
   this.audioCtx = new AudioContext();
   this.audio = document.getElementById('audioPlayer');
   this.audioSrc = this.audioCtx.createMediaElementSource(this.audio);
+  
+  this.delay = this.audioCtx.createDelay(5.0);
+  this.delay.delayTime.value = 0.07; //adjustable delay! (value is in seconds)
+  
   this.analyser = this.audioCtx.createAnalyser();
-  this.analyser.fftSize = 4096; //remove later
   this.audioSrc.connect(this.analyser);
-  this.audioSrc.connect(this.audioCtx.destination);
+  this.audioSrc.connect(this.delay);
+  this.delay.connect(this.audioCtx.destination);
 
   this.frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
 
