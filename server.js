@@ -1,6 +1,6 @@
 var http = require('http')
 var fs = require('fs')
-var stream = require('./js/youtubeaudiostream.js')
+var stream = require('youtube-audio-stream')
 var path = require('path');
 var express = require('express');
 var path = require('path');
