@@ -1,27 +1,25 @@
 let img, pgMask;
  
 function preload() {
-  img = loadImage('assets/googleZoom.jpg', function(img){
-    img.resize(720, 400);
-});
+    img = loadImage('assets/googleZoom.jpg', function(img){
+        img.resize(720, 400);
+    });
 }
  
 function setup() {
-  createCanvas(720, 400);
-  imageMode(CENTER);
- 
-  pgMask = createGraphics(img.width, img.height);
-  pgMask.fill(0200, 0300);
-  pgMask.ellipse(img.width>>1, img.height>>1, img.width>>1, img.height>>1);
- 
-  //img.mask(pgMask); // fails b/c mask() can't deal w/ p5.Graphics
-  img.mask(pgMask._renderer); // works b/c _renderer property is a p5.Renderer
+    createCanvas(720, 400);
+    imageMode(CENTER);
+    pgMask = createGraphics(img.width, img.height);
+    pgMask.fill(0200, 0300);
+    pgMask.ellipse(img.width>>1, img.height>>1, img.width>>1, img.height>>1);
+    //img.mask(pgMask); // fails b/c mask() can't deal w/ p5.Graphics
+    img.mask(pgMask._renderer); // works b/c _renderer property is a p5.Renderer
 }
  
 function draw() {
-  background(0, 100, 150);
-  image(img, width>>1, height>>1);
-  image(img, mouseX, mouseY);
+    background(0, 100, 150);
+    image(img, width>>1, height>>1);
+    image(img, mouseX, mouseY);
 }
 
 
