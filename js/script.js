@@ -1,4 +1,3 @@
-"use strict";
 
 var c;
 
@@ -17,10 +16,11 @@ var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
 function setup(){
+
 	c = createCanvas(winWidth, winHeight);
 	system = new ParticleSystem(400, 10);
 
-  mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
+    mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
 	mic.play();
 }
 
