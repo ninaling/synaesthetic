@@ -9,14 +9,14 @@
 	position: relative;
 }
 
-#audio-container {
+#button-container {
 	width: 100vw;
 	position: absolute;
 	left: 0;
 	bottom: 0;
 	padding: 5vh 0;
 	text-align: center;
-	opacity: 0;
+	opacity: 255;
 	transition: all .5s ease;
 	z-index: 10;
 }
