@@ -22,6 +22,9 @@ function setup(){
 
     mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
 	mic.play();
+
+	RingAnimator.init(mic);
+
 }
 
 function draw() {

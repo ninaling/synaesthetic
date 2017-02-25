@@ -18,7 +18,7 @@ var RingAnimator = (function() {
 
     var minVolume = 10000,
         maxVolume = -10000;
-        
+
     var aCtx, analyser, microphone;
 
     function checkCompatible(){
@@ -29,7 +29,7 @@ var RingAnimator = (function() {
         return true;
     }
 
-    function init(){
+    function init(micIn){
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, width / height, 0.05, 1000);
 
@@ -110,7 +110,9 @@ var RingAnimator = (function() {
                 aCtx = new AudioContext();
                 analyser = aCtx.createAnalyser();
                 microphone = aCtx.createMediaStreamSource(stream);
-                microphone.connect(analyser);
+                console.log(microphone);
+                console.log(micIn)
+                //micIn.connect(analyser);
                 // analyser.connect(aCtx.destination);
             }, function (error) { console.log(error); });
         };
@@ -132,9 +134,10 @@ var RingAnimator = (function() {
         }
 
         (function () {
-            if (analyser) {
-                FFTData = new Float32Array(analyser.frequencyBinCount);
-                analyser.getFloatFrequencyData(FFTData);
+
+            if (typeof micIn != 'undefined' && micIn.analyser) {
+                FFTData = new Float32Array(micIn.analyser.frequencyBinCount);
+                micIn.analyser.getFloatFrequencyData(FFTData);
                 avgVolume = (FFTData.reduce((acc, val) => acc+val, 0))/FFTData.length;
 
                 if (avgVolume < -10000 || avgVolume > 10000) return;
@@ -197,7 +200,7 @@ var RingAnimator = (function() {
 
 }());
 
-RingAnimator.init();
+//RingAnimator.init();
 
 
 
