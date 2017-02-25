@@ -16,12 +16,12 @@
 	bottom: 0;
 	padding: 5vh 0;
 	text-align: center;
-	opacity: 255;
+	opacity: 0;
 	transition: all .5s ease;
 	z-index: 10;
 }
 
-#audio-container:hover {
+#button-container:hover {
 	opacity: 1;
 }
 
