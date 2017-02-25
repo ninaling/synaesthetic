@@ -2,8 +2,22 @@ function youtubeAudio(link){
   this.player = new window.Audio(link);
   this.player.preload = 'metadata';
   this.player.setAttribute("id", "audioPlayer");
-  this.player.controls = true;
-   document.getElementById('audio-container').appendChild(this.player);
+  this.player.controls = false;
+  document.getElementById('audio-container').appendChild(this.player);
+
+  this.playing = false;
+  this.button = document.createElement("button");
+  this.button.addEventListener('click', function() {
+    var player = document.getElementById("audioPlayer");
+    if(!player.paused){
+      player.pause();
+    }
+    else{
+      player.play();
+    }
+  });
+  this.button.innerHTML = "play/pause";
+  document.getElementById('button-container').appendChild(this.button);
 
   this.audioCtx = new AudioContext();
   this.audio = document.getElementById('audioPlayer');
@@ -17,6 +31,7 @@ function youtubeAudio(link){
 
   this.play = function(){
     this.player.play();
+    this.playing = true;
   };
 
   this.FFT = function(){
