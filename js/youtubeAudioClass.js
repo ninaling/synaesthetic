@@ -24,6 +24,16 @@ function youtubeAudio(link){
     return this.frequencyData;
   };
 
+  this.getCentroid = function() {
+    var freqPerBin = this.audioCtx.sampleRate / this.analyser.fftSize;
+    var sum = 0, total = 0;
+    for(var i = 0; i < this.frequencyData.length; i++){
+      sum += freqPerBin*(i+1)*this.frequencyData[i];
+      total += this.frequencyData[i];
+    }
+    return sum/total;
+  }
+
   this.getBass = function(){
     var freqPerBin = this.audioCtx.sampleRate / this.analyser.fftSize;
     var length = 350 / freqPerBin;
