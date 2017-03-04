@@ -9,7 +9,7 @@
 	position: relative;
 }
 
-#audio-container {
+#button-container {
 	width: 100vw;
 	position: absolute;
 	left: 0;
@@ -21,7 +21,7 @@
 	z-index: 10;
 }
 
-#audio-container:hover {
+#button-container:hover {
 	opacity: 1;
 }
 
