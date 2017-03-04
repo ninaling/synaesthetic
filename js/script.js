@@ -23,8 +23,9 @@ function setup(){
     mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
 	mic.play();
 
-	RingAnimator.init(mic);
-
+	if(RingAnimator.checkCompatible())
+		RingAnimator.init(mic);
+	
 }
 
 function draw() {
@@ -33,7 +34,11 @@ function draw() {
 	var spectrum = mic.FFT();
 	var bassLevel = mic.getBass();
 
-	var bassLevelMultiplier = bassLevel > 200 ? (bassLevel - 95)/8 : 1;
+	var bassLevelMultiplier = bassLevel > 200 
+								? (bassLevel - 95)/8 
+								: bassLevel == 0 
+									? 0
+									: 1;
 	var props = {
 		bassLevelMultiplier: bassLevelMultiplier
 	};

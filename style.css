@@ -10,21 +10,14 @@
 }
 
 #button-container {
-	width: 100vw;
 	position: absolute;
-	left: 0;
-	bottom: 0;
-	padding: 5vh 0;
-	text-align: center;
-	opacity: 0;
+	right: 0;
+	top: 0;
+	padding: 20px;
+	opacity: 1;
 	transition: all .5s ease;
 	z-index: 10;
 }
-
-#button-container:hover {
-	opacity: 1;
-}
-
 canvas {
 	position: absolute;
 	top: 0;

@@ -13,13 +13,16 @@ var RingAnimator = (function() {
 
     var scene, camera, renderer;
     var orbitPath, orbitIndex, noiseForPath, rollwindow, avg;
-    var sphere, rings, controls;
+    var sphere, sphereDirectionX, rings, controls;
+    var square;
+
     var afterFirstRender, longRoller, maxScale = 0;
 
     var minVolume = 10000,
         maxVolume = -10000;
 
     var aCtx, analyser, microphone;
+    var peakDone, peakDuration = 0;
 
     function checkCompatible(){
         if (!Detector.webgl) {
@@ -29,7 +32,7 @@ var RingAnimator = (function() {
         return true;
     }
 
-    function init(micIn){
+    function initScene(){
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, width / height, 0.05, 1000);
 
@@ -39,11 +42,13 @@ var RingAnimator = (function() {
         renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(width, height);
         renderer.setClearColor( 0x000000, 0 ); // the default
+    }
 
+    function initOrbitPath(){
         orbitPath = (function createOrbitPath () {
             var radius = 2,
                 segments = 256,
-                material = new THREE.LineBasicMaterial( { color: 0xffffff } ),
+                material = new THREE.LineBasicMaterial( { color: 0xffffff, transparent: true, opacity: 0.2 } ),
                 geometry = new THREE.CircleGeometry( radius, segments );
 
             geometry.verticesNeedUpdate = true;
@@ -58,22 +63,9 @@ var RingAnimator = (function() {
 
             scene.add(orbitPath);
             return orbitPath;
+
         })();
 
-        orbitIndex = 0;
-
-        sphere = createSphere(radius, segments);
-        sphere.rotation.y = rotation;
-        orbitPath.add(sphere);
-
-        rings = createRings(radius, segments);
-        rings.rotation.y = rotation;
-        sphere.add(rings);
-
-        controls = new THREE.TrackballControls(camera);
-        webglEl.appendChild(renderer.domElement);
-
-        
         noiseForPath = orbitPath.geometry.vertices.map(() => Math.random());
         rollwindow = 10;
         avg = noiseForPath.slice(0,rollwindow).reduce((acc, val) => acc+val, 0)*1.0/rollwindow;
@@ -83,93 +75,123 @@ var RingAnimator = (function() {
             return avg;
         });
 
-        render(micIn);
-        afterFirstRender = false;
-/*
-        class RollingAverage {
-            constructor(size) {
-                this.size = size;
-                this.vals = new Array(size).fill(0);
-                this.index = 0;
-                this.avg = 0;
-            }
-            next (val) {
-                this.avg -= this.vals[this.index];
-                this.vals[this.index] = val*1.0/this.size;
-                this.avg += this.vals[this.index];
-                this.index = (this.index+1)%this.size;
-                return this.avg;
-            }
-        }
-
-        longRoller = new RollingAverage(10);
-
-        //connect mic
-        if (navigator.getUserMedia) {
-            navigator.getUserMedia({audio: true}, function(stream) {
-                aCtx = new AudioContext();
-                analyser = aCtx.createAnalyser();
-                microphone = aCtx.createMediaStreamSource(stream);
-                console.log(microphone);
-                console.log("mic: ", micIn)
-                //micIn.connect(analyser);
-                // analyser.connect(aCtx.destination);
-            }, function (error) { console.log(error); });
-        };
-*/
+        orbitIndex = 0;
     }
 
-    window.addEventListener('resize', function() {
-	    var WIDTH = window.innerWidth,
-	        HEIGHT = window.innerHeight;
-	    renderer.setSize(WIDTH, HEIGHT);
-	    camera.aspect = WIDTH / HEIGHT;
-	    camera.updateProjectionMatrix();
-	});
+    function initRingedPlanet(hasOrbit){
+        if(hasOrbit)
+            initOrbitPath();
+
+        sphere = createSphere(radius, segments);
+        sphere.rotation.y = rotation;
+        sphereDirectionX = 1;
+
+        if(hasOrbit)
+            orbitPath.add(sphere);
+        else
+            scene.add(sphere);
+        
+        rings = createRings(radius, segments);
+        rings.rotation.y = rotation;
+        sphere.add(rings);
+
+        rings.scale.x = 1.1;
+        rings.scale.z = 1.1;
+    }
+
+    function init(micIn){
+
+        initScene();
+
+        hasOrbit = false;
+        initRingedPlanet(hasOrbit);
+
+        controls = new THREE.TrackballControls(camera);
+        webglEl.appendChild(renderer.domElement);
+        
+        peakDone = false;
+        render(micIn, hasOrbit);
+        afterFirstRender = false;
+    }
+
+    function enableDoubleShadow(amp){
+        camera.position.x += amp / 256 * 2 * sphereDirectionX;
+
+        if(amp > 150 || camera.position.x < 200 || camera.position.x > -200)
+            sphereDirectionX *= -1;
+    }
 
     function render(micIn) {
-        console.log(micIn);
-        if (afterFirstRender) {
-            // needs to be set after first render?
-            orbitPath.geometry.verticesNeedUpdate = true;
+
+        var amp = micIn.getAmplitude();
+
+        if(hasOrbit){
+            if (afterFirstRender)
+                orbitPath.geometry.verticesNeedUpdate = true;
+
+            (function () {
+                if (typeof micIn != 'undefined' && micIn.analyser) {
+                    for (var i = 0; i < smoothnoise.length; i++) {
+                        //getBass()
+                        orbitPath.geometry.vertices[i].setZ(smoothnoise[i] * micIn.getAmplitude() / 100);
+                        //orbitPath.geometry.vertices[i].setX(smoothnoise[i] * micIn.getAmplitude() / 100);
+                        //orbitPath.geometry.vertices[i].setY(smoothnoise[i] * micIn.getAmplitude() / 100);
+                    }
+                }
+                orbitIndex = (orbitIndex+1) % orbitPath.geometry.vertices.length;
+                var newpos = orbitPath.geometry.vertices[orbitIndex];
+                sphere.position.set(newpos.x, newpos.y, newpos.z);
+            })();
         }
 
-        (function () {
-
-            if (typeof micIn != 'undefined' && micIn.analyser) {
-                /*
-                FFTData = new Float32Array(micIn.analyser.frequencyBinCount);
-                micIn.analyser.getFloatFrequencyData(FFTData);
-                avgVolume = (FFTData.reduce((acc, val) => acc+val, 0))/FFTData.length;
-
-                if (avgVolume < -10000 || avgVolume > 10000) return;
-
-                var shortAvg = avgVolume; // shortRoller.next(avgVolume);
-                var longAvg = longRoller.next(avgVolume);
-
-                var scale = Math.max(shortAvg-longAvg, 0);
-                maxScale = Math.max(scale, maxScale);
-                var normalized = scale/maxScale;
-                */
-                for (var i = 0; i < smoothnoise.length; i++) {
-                    //getBass()
-                   // orbitPath.geometry.vertices[i].setZ(smoothnoise[i] * micIn.getAmplitude() / 100);
-                   // orbitPath.geometry.vertices[i].setX(smoothnoise[i] * micIn.getAmplitude() / 100);
-                   // orbitPath.geometry.vertices[i].setY(smoothnoise[i] * micIn.getAmplitude() / 100);
-                }
-            }
-        })();
-
     	controls.update();
-    	rings.rotation.y += micIn.getAmplitude() / 2560 * 5; //0.05;
-    	rings.rotation.x += micIn.getAmplitude() / 2560 * 5;
 
-    	sphere.rotation.x += micIn.getBass() / 2560 * 5;
-    	sphere.rotation.y += micIn.getAmplitude() / 2560 * 5;
+        //this does jank double shadow effect
+        if(amp > 100)
+            peakDone = true;
 
-        orbitIndex = (orbitIndex+1) % orbitPath.geometry.vertices.length;
-        var newpos = orbitPath.geometry.vertices[orbitIndex];
-        sphere.position.set(newpos.x, newpos.y, newpos.z);
+        if(peakDone){
+            enableDoubleShadow(amp);
+            peakDuration++;
+
+            if(peakDuration > 100){
+                peakDuration = 0;
+                peakDone = false;
+            }
+        }
+
+        if(amp > 100 && rings.scale.x < 1.5)
+        {
+            sphere.scale.x += amp / 2560;
+            sphere.scale.y += amp / 2560;
+            sphere.scale.z += amp / 2560;
+            rings.scale.x += 0.01;
+            rings.scale.z += 0.01;
+        }
+        else if (amp > 80 && rings.scale.x < 1.3)
+        {
+            sphere.scale.x += amp / 2560 / 2;
+            sphere.scale.y += amp / 2560 / 2;
+            sphere.scale.z += amp / 2560 / 2;
+            rings.scale.x += 0.01 / 2;
+            rings.scale.z += 0.01 / 2;
+        }
+        else if (amp < 100 && rings.scale.x > 1)
+        {
+            sphere.scale.x -= amp / 2560;
+            sphere.scale.y -= amp / 2560;
+            sphere.scale.z -= amp / 2560;
+            rings.scale.x -= 0.01;
+            rings.scale.z -= 0.01;
+        }
+
+        
+        rings.rotation.y += amp / 2560 * 3; //0.05;
+        rings.rotation.x += amp / 2560 * 2;
+
+        sphere.rotation.x += amp / 2560 * 2;
+        sphere.rotation.y += amp / 2560 * 3;
+
 
     	requestAnimationFrame(function(micIn){
             render(micIn);
@@ -190,12 +212,33 @@ var RingAnimator = (function() {
     		)
     	);
     }
+    function createCube(length){
+        var material = new THREE.MeshBasicMaterial( {
+            color: '#000',
+            polygonOffset: true,
+            polygonOffsetFactor: 1, // positive value pushes polygon further away
+            polygonOffsetUnits: 1
+        } );
+
+        var mesh = new THREE.Mesh(
+            new THREE.CubeGeometry(length,length,length),
+            material
+        )
+
+        //wireframe
+      /*  var geo = new THREE.WireframeGeometry( mesh.geometry );
+        var mat = new THREE.LineBasicMaterial( { color: '#fff', linewidth: 2 } );
+        var wireframe = new THREE.Line( geo, mat );
+        mesh.add( wireframe );*/
+
+        return mesh;
+    }
     function createRings(radius, segments) {
     	return 	new THREE.Mesh(new THREE.XRingGeometry(1.2 * radius, 2 * radius, 2 * segments, 5, 0, Math.PI * 2),
     			new THREE.MeshBasicMaterial(
     				{	
     					color: '#f8de5c',
-    					wireframe: true,
+    					wireframe: false,
     					side: THREE.DoubleSide, transparent: true, opacity: 0.9
     				}
     			)
@@ -207,9 +250,16 @@ var RingAnimator = (function() {
         init: init
     }
 
-}());
+    window.addEventListener('resize', function() {
+        var WIDTH = window.innerWidth,
+            HEIGHT = window.innerHeight;
+        renderer.setSize(WIDTH, HEIGHT);
+        camera.aspect = WIDTH / HEIGHT;
+        camera.updateProjectionMatrix();
 
-//RingAnimator.init();
+    });
+
+}());
 
 
 
