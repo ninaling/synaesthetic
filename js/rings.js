@@ -83,9 +83,9 @@ var RingAnimator = (function() {
             return avg;
         });
 
-        render();
+        render(micIn);
         afterFirstRender = false;
-
+/*
         class RollingAverage {
             constructor(size) {
                 this.size = size;
@@ -111,12 +111,12 @@ var RingAnimator = (function() {
                 analyser = aCtx.createAnalyser();
                 microphone = aCtx.createMediaStreamSource(stream);
                 console.log(microphone);
-                console.log(micIn)
+                console.log("mic: ", micIn)
                 //micIn.connect(analyser);
                 // analyser.connect(aCtx.destination);
             }, function (error) { console.log(error); });
         };
-
+*/
     }
 
     window.addEventListener('resize', function() {
@@ -127,7 +127,8 @@ var RingAnimator = (function() {
 	    camera.updateProjectionMatrix();
 	});
 
-    function render() {
+    function render(micIn) {
+        console.log(micIn);
         if (afterFirstRender) {
             // needs to be set after first render?
             orbitPath.geometry.verticesNeedUpdate = true;
@@ -136,6 +137,7 @@ var RingAnimator = (function() {
         (function () {
 
             if (typeof micIn != 'undefined' && micIn.analyser) {
+                /*
                 FFTData = new Float32Array(micIn.analyser.frequencyBinCount);
                 micIn.analyser.getFloatFrequencyData(FFTData);
                 avgVolume = (FFTData.reduce((acc, val) => acc+val, 0))/FFTData.length;
@@ -148,24 +150,31 @@ var RingAnimator = (function() {
                 var scale = Math.max(shortAvg-longAvg, 0);
                 maxScale = Math.max(scale, maxScale);
                 var normalized = scale/maxScale;
+                */
                 for (var i = 0; i < smoothnoise.length; i++) {
-                    orbitPath.geometry.vertices[i].setZ(normalized*smoothnoise[i]);
+                    //getBass()
+                   // orbitPath.geometry.vertices[i].setZ(smoothnoise[i] * micIn.getAmplitude() / 100);
+                   // orbitPath.geometry.vertices[i].setX(smoothnoise[i] * micIn.getAmplitude() / 100);
+                   // orbitPath.geometry.vertices[i].setY(smoothnoise[i] * micIn.getAmplitude() / 100);
                 }
             }
         })();
 
     	controls.update();
-    	rings.rotation.y += 0.05;
-    	rings.rotation.x += 0.05;
-    	
-    	sphere.rotation.x += 0.02;
-    	sphere.rotation.y += 0.05;
+    	rings.rotation.y += micIn.getAmplitude() / 2560 * 5; //0.05;
+    	rings.rotation.x += micIn.getAmplitude() / 2560 * 5;
+
+    	sphere.rotation.x += micIn.getBass() / 2560 * 5;
+    	sphere.rotation.y += micIn.getAmplitude() / 2560 * 5;
 
         orbitIndex = (orbitIndex+1) % orbitPath.geometry.vertices.length;
         var newpos = orbitPath.geometry.vertices[orbitIndex];
         sphere.position.set(newpos.x, newpos.y, newpos.z);
 
-    	requestAnimationFrame(render);
+    	requestAnimationFrame(function(micIn){
+            render(micIn);
+        }.bind(null, micIn));
+
     	renderer.render(scene, camera);
 
         afterFirstRender = true;
