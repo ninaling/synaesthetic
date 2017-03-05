@@ -107,6 +107,8 @@ var RingAnimator = (function() {
         initRingedPlanet(hasOrbit);
 
         controls = new THREE.TrackballControls(camera);
+        controls.enabled = false;
+
         webglEl.appendChild(renderer.domElement);
         
         peakDone = false;

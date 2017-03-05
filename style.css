@@ -3,21 +3,40 @@
 	padding: 0;
 }
 
+button:focus,
+input:focus{
+	outline:0;
+}
+
+a{
+	text-decoration: none;
+}
+
+/*============CONTROLS============*/
+
+
+.controls{
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: 100;
+}
+
+#button-container {
+	padding: 20px;
+	opacity: 1;
+	transition: all .5s ease;
+	z-index: 10;
+}
+
+/*===============CONTENT===============*/
+
 #container {
 	width: 100vw;
 	height: 100vh;
 	position: relative;
 }
 
-#button-container {
-	position: absolute;
-	right: 0;
-	top: 0;
-	padding: 20px;
-	opacity: 1;
-	transition: all .5s ease;
-	z-index: 10;
-}
 canvas {
 	position: absolute;
 	top: 0;
@@ -31,3 +50,99 @@ canvas {
 	position: absolute;
 	z-index: 5;
 }
+
+/*===============YT SELECTION=============*/
+
+.selection{
+	position: absolute;
+	z-index: 99;
+	top: 0;
+	height: 100%;
+	width: 100%;
+	background-color: rgba(0,0,0,0.3);
+	padding: 20px;
+}
+
+.search-bar{
+	height: 70px;
+}
+
+#search{
+	float: left;
+	overflow: hidden;
+
+	margin-right: 20px;
+	border: none;
+    background: none;
+    width: 40%;
+    height: 50px;
+    border-bottom: 1px solid #fff;
+    font-size: 24px;
+    font-weight: 200;
+    color: #fff;
+}
+
+#search-btn{
+	float: left;
+	height: 50px;
+	width: 100px;
+    border: 1px solid white;
+    background: none;
+    color: #fff;
+    padding: 10px;
+    font-size: 12px;
+
+    transition: all 0.2s ease;
+}
+
+#search-btn:hover{
+	background: #fff;
+	color: #000;
+	cursor: pointer;
+}
+
+.item{
+	width: 36%;
+	padding: 2%;
+    margin-bottom: 10px;
+    background: #fff;
+
+    transition: all 0.3s ease;
+}
+
+.item h3{
+	color: #000;
+    font-family: sans-serif;
+    font-weight: 200;
+}
+
+
+.content.unfocus{
+	filter: blur(5px);
+	pointer-events: none;
+}
+
+a:hover .item{
+	transform: translateX(20px);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
