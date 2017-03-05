@@ -16,8 +16,8 @@ var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
 function setup(){
-
 	c = createCanvas(winWidth, winHeight);
+	c.parent("background-stars");
 	system = new ParticleSystem(400, 10);
 
     mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
@@ -25,7 +25,7 @@ function setup(){
 
 	if(RingAnimator.checkCompatible())
 		RingAnimator.init(mic);
-	
+
 }
 
 function draw() {
@@ -34,9 +34,9 @@ function draw() {
 	var spectrum = mic.FFT();
 	var bassLevel = mic.getBass();
 
-	var bassLevelMultiplier = bassLevel > 200 
-								? (bassLevel - 95)/8 
-								: bassLevel == 0 
+	var bassLevelMultiplier = bassLevel > 200
+								? (bassLevel - 95)/8
+								: bassLevel == 0
 									? 0
 									: 1;
 	var props = {
@@ -45,6 +45,7 @@ function draw() {
 
 	background(darkPurple);
 	system.run(props);
+	applyColorFilter(bassLevel);
 	system.addParticle();
 }
 

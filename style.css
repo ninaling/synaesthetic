@@ -3,6 +3,16 @@
 	padding: 0;
 }
 
+/*body #background-stars {
+	-webkit-filter: hue-rotate(300deg) saturate(8);
+	filter: hue-rotate(300deg) saturate(8);
+}
+
+body #webgl {
+	-webkit-filter: hue-rotate(300deg) saturate(8);
+	filter: hue-rotate(300deg) saturate(8);
+}*/
+
 #container {
 	width: 100vw;
 	height: 100vh;
