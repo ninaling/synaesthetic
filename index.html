@@ -13,14 +13,14 @@
 	
 
 </head>
-<body style="background-color: #270227">
-
+<body>
 	<div class="selection">
 		<div class="search-bar">
 			<form action="#">
-				<input id="search" type="text" name="search" placeholder="search for a song" />
-				<button id="search-btn">SEARCH</button>
+				<input class="search-input" type="text" name="search" placeholder="search for a song" autocomplete="off" />
+				<button class="btn search-btn">SEARCH</button>
 			</form>
+			<button class="btn cancel-btn">CANCEL</button>
 		</div>
 		<div id="results"></div>
 	</div>
@@ -32,7 +32,8 @@
 		</div>
 	</div>
 	
-	<div class="content unfocus">
+	<div class="content">
+		<div id="overlay"></div>
 		<div id="webgl"></div> 
 	</div>
 
