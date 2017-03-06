@@ -1,4 +1,3 @@
-//console.log('mic', mic);
 
 var RingAnimator = (function() {
 	var webglEl = document.getElementById('webgl');
@@ -8,21 +7,18 @@ var RingAnimator = (function() {
     var width = window.innerWidth,
         height = window.innerHeight;
     var radius = 0.45,
-    	segments = 30,
+    	currentSegment = 30,
     	rotation = 5;
 
-    var scene, camera, renderer;
+    var scene, camera, renderer, isPlaying;
     var orbitPath, orbitIndex, noiseForPath, rollwindow, avg;
     var sphere, sphereDirectionX, rings, controls;
     var square;
 
     var afterFirstRender, longRoller, maxScale = 0;
 
-    var minVolume = 10000,
-        maxVolume = -10000;
-
     var aCtx, analyser, microphone;
-    var peakDone, peakDuration = 0;
+    var peakDone, peakThrottle = 0;
 
     function checkCompatible(){
         if (!Detector.webgl) {
@@ -38,6 +34,8 @@ var RingAnimator = (function() {
 
         camera.position.z = 5;
         camera.position.y = 2;
+
+        isPlaying = true;
 
         renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(width, height);
@@ -78,11 +76,11 @@ var RingAnimator = (function() {
         orbitIndex = 0;
     }
 
-    function initRingedPlanet(hasOrbit){
+    function initRingedPlanet(hasOrbit, segments){
         if(hasOrbit)
             initOrbitPath();
 
-        sphere = createSphere(radius, segments);
+        sphere = Models.createSphere(radius, segments);
         sphere.rotation.y = rotation;
         sphereDirectionX = 1;
 
@@ -91,7 +89,7 @@ var RingAnimator = (function() {
         else
             scene.add(sphere);
         
-        rings = createRings(radius, segments);
+        rings = Models.createRings(radius, segments);
         rings.rotation.y = rotation;
         sphere.add(rings);
 
@@ -104,7 +102,7 @@ var RingAnimator = (function() {
         initScene();
 
         hasOrbit = false;
-        initRingedPlanet(hasOrbit);
+        initRingedPlanet(hasOrbit, currentSegment);
 
         controls = new THREE.TrackballControls(camera);
         controls.enabled = false;
@@ -112,8 +110,10 @@ var RingAnimator = (function() {
         webglEl.appendChild(renderer.domElement);
         
         peakDone = false;
+
         render(micIn, hasOrbit);
         afterFirstRender = false;
+
     }
 
     function enableDoubleShadow(amp){
@@ -125,7 +125,17 @@ var RingAnimator = (function() {
 
     function render(micIn) {
 
+        if (!isPlaying) return;
+
+        controls.update();
+
         var amp = micIn.getAmplitude();
+        var bass = micIn.getBass();
+        var centroid = micIn.getCentroid();
+
+        console.log('amp', amp);
+        console.log('bass', bass);
+        console.log('centroid', centroid);
 
         if(hasOrbit){
             if (afterFirstRender)
@@ -146,53 +156,34 @@ var RingAnimator = (function() {
             })();
         }
 
-    	controls.update();
-
-        //this does jank double shadow effect
-        if(amp > 100)
+        //change segments
+        if(bass > 240)
             peakDone = true;
 
-        if(peakDone){
-            enableDoubleShadow(amp);
-            peakDuration++;
+        peakThrottle++;
 
-            if(peakDuration > 100){
-                peakDuration = 0;
-                peakDone = false;
-            }
-        }
+        if(peakDone && peakThrottle > 100){
+            if(currentSegment == 30)
+                changePlanetSegments(sphere, radius, 1);
+            else
+                changePlanetSegments(sphere, radius, 30);
 
-        if(amp > 100 && rings.scale.x < 1.5)
-        {
-            sphere.scale.x += amp / 2560;
-            sphere.scale.y += amp / 2560;
-            sphere.scale.z += amp / 2560;
-            rings.scale.x += 0.01;
-            rings.scale.z += 0.01;
-        }
-        else if (amp > 80 && rings.scale.x < 1.3)
-        {
-            sphere.scale.x += amp / 2560 / 2;
-            sphere.scale.y += amp / 2560 / 2;
-            sphere.scale.z += amp / 2560 / 2;
-            rings.scale.x += 0.01 / 2;
-            rings.scale.z += 0.01 / 2;
-        }
-        else if (amp < 100 && rings.scale.x > 1)
-        {
-            sphere.scale.x -= amp / 2560;
-            sphere.scale.y -= amp / 2560;
-            sphere.scale.z -= amp / 2560;
-            rings.scale.x -= 0.01;
-            rings.scale.z -= 0.01;
+            peakDone = false;
+            peakThrottle = 0;
         }
 
+        //rotation and scale for planet
+        var scaleFactor = 1 + bass/256;
+        var rotationFactor = amp / 2560;
+
+        rings.scale.x = scaleFactor;
+        rings.scale.z = scaleFactor;
         
-        rings.rotation.y += amp / 2560 * 3; //0.05;
-        rings.rotation.x += amp / 2560 * 2;
-
-        sphere.rotation.x += amp / 2560 * 2;
-        sphere.rotation.y += amp / 2560 * 3;
+        rings.rotation.x += rotationFactor * 2;
+        rings.rotation.y += rotationFactor * 3;
+        
+        sphere.rotation.x += rotationFactor * 2;
+        sphere.rotation.y += rotationFactor * 3;
 
 
     	requestAnimationFrame(function(micIn){
@@ -200,51 +191,14 @@ var RingAnimator = (function() {
         }.bind(null, micIn));
 
     	renderer.render(scene, camera);
-
         afterFirstRender = true;
     }
-    function createSphere(radius, segments) {
-    	return new THREE.Mesh(
-    		new THREE.SphereGeometry(radius, segments, segments),
-    		new THREE.MeshBasicMaterial(
-    			{
-    				color: '#ed4c51',
-    				wireframe: true
-    			}
-    		)
-    	);
-    }
-    function createCube(length){
-        var material = new THREE.MeshBasicMaterial( {
-            color: '#000',
-            polygonOffset: true,
-            polygonOffsetFactor: 1, // positive value pushes polygon further away
-            polygonOffsetUnits: 1
-        } );
-
-        var mesh = new THREE.Mesh(
-            new THREE.CubeGeometry(length,length,length),
-            material
-        )
-
-        //wireframe
-      /*  var geo = new THREE.WireframeGeometry( mesh.geometry );
-        var mat = new THREE.LineBasicMaterial( { color: '#fff', linewidth: 2 } );
-        var wireframe = new THREE.Line( geo, mat );
-        mesh.add( wireframe );*/
-
-        return mesh;
-    }
-    function createRings(radius, segments) {
-    	return 	new THREE.Mesh(new THREE.XRingGeometry(1.2 * radius, 2 * radius, 2 * segments, 5, 0, Math.PI * 2),
-    			new THREE.MeshBasicMaterial(
-    				{	
-    					color: '#f8de5c',
-    					wireframe: false,
-    					side: THREE.DoubleSide, transparent: true, opacity: 0.9
-    				}
-    			)
-    		);
+    function changePlanetSegments(object, radius, segments){
+        if(segments != currentSegment){
+            currentSegment = segments;
+            scene.remove(object);
+            initRingedPlanet(false, segments);
+        }
     }
 
     return {
