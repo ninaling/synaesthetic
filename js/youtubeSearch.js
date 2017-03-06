@@ -22,16 +22,18 @@ $(function(){
 		var request = gapi.client.youtube.search.list({
             part: 'snippet',
             type: 'video',
-            q: encodeURIComponent($('.search-input').val()).replace(/%20/g, "+"),
+            q: encodeURIComponent($('.search-input').val()).replace(/%20/g, "+") + ' song',
             maxResults: 5,
             order: 'viewCount',
             publishedAfter: '2015-01-01T00:00:00Z'
        }); 
 
 		request.execute(function(response) {
-          var results = response.result;
-          $('#results').html('');
-          $.each(results.items, function(index, item) {
+            var results = response.result;
+
+            $('#results').html('');
+
+            $.each(results.items, function(index, item) {
             $.get('tpl/item.html', function(data) {
                 $('#results').append(tplawesome(data, 
                 	[
@@ -40,10 +42,14 @@ $(function(){
                 			'videoid': item.id.videoId,
                 			'link': 'watch?v=' + item.id.videoId
                 		}
-                	]
-                ));
+                	]));
+                });
             });
-          });
+
+            if(results.items.length == 0){
+                $('#results').html('<p class="not-found">Sorry, no results found.</p>');
+            }
+
        });
 	})
 });

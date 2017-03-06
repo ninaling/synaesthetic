@@ -81,7 +81,7 @@ canvas {
     font-weight: 200;
     color: #fff;
 
-    transition: all 0.5s ease;
+    transition: all 0.8s ease;
 }
 
 .search-input.focus, .search-bar form:hover .search-input{
@@ -118,10 +118,14 @@ canvas {
     transition: all 0.3s ease;
 }
 
-.item h3{
+.item h3, .not-found{
 	color: #000;
     font-family: sans-serif;
     font-weight: 200;
+}
+
+.not-found{
+	color: #fff;
 }
 
 .cancel-btn{
@@ -135,7 +139,8 @@ canvas {
 }
 
 .content.unfocus{
-	filter: blur(5px);
+	-webkit-filter: blur(5px);
+			filter: blur(5px);
 }
 
 .content #overlay{
