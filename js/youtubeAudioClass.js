@@ -17,41 +17,35 @@ function youtubeAudio(link){
   this.delayToAnalyser.delayTime.value = 0.4;
 
   this.delayAhead = this.audioCtx.createDelay(5.0);
-  this.delayAhead.delayTime.value = 0.6;
-
-  this.delayBehind = this.audioCtx.createDelay(5.0);
-  this.delayBehind.delayTime.value = 0.2;
+  this.delayAhead.delayTime.value = 0.35;
   
   //create analyzers
   this.analyser = this.audioCtx.createAnalyser();
   this.analyserAhead = this.audioCtx.createAnalyser();
-  this.analyserBehind = this.audioCtx.createAnalyser();
 
   //connect audioSrc to delays
   this.audioSrc.connect(this.delayToOutput);
   this.audioSrc.connect(this.delayToAnalyser);
   this.audioSrc.connect(this.delayAhead);
-  this.audioSrc.connect(this.delayBehind);
 
   //connect delays to analyzers
   this.delayToAnalyser.connect(this.analyser);
   this.delayAhead.connect(this.analyserAhead);
-  this.delayBehind.connect(this.analyserBehind);
 
   //connect output
   this.delayToOutput.connect(this.audioCtx.destination);
 
   this.frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
   this.aheadFrequencyData = new Uint8Array(this.analyserAhead.frequencyBinCount);
-  this.behindFrequencyData = new Uint8Array(this.analyserBehind.frequencyBinCount);
+  this.behindFrequencyData = new Uint8Array(this.analyser.frequencyBinCount);
+
+  this.isPeak = false;
 
   //vars for peak detection
   this.behindTenBass = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                        0, 0, 0, 0, 0];
   this.aheadTenBass =  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                        0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+                        0, 0, 0, 0, 0];
   this.bassIndex = 0;
   this.bassLevel = 0;
 
@@ -62,7 +56,6 @@ function youtubeAudio(link){
   this.FFT = function(){
     this.analyser.getByteFrequencyData(this.frequencyData);
     this.analyserAhead.getByteFrequencyData(this.aheadFrequencyData);
-    this.analyserBehind.getByteFrequencyData(this.behindFrequencyData);
     this.update()
     return this.frequencyData;
   };
@@ -77,6 +70,7 @@ function youtubeAudio(link){
       values += this.frequencyData[i];
     }
     average = values/length;
+    this.behindTenBass[this.bassIndex] = average;
     this.bassLevel = average;
 
     //get ahead bass
@@ -88,18 +82,8 @@ function youtubeAudio(link){
     }
     average = values/length;
     this.aheadTenBass[this.bassIndex] = average;
-    
-    //get behind bass
-    freqPerBin = this.audioCtx.sampleRate / this.analyserBehind.fftSize;
-    length = 350 / freqPerBin;
-    values = 0;
-    for(var i = 0; i < length; i++){
-      values += this.behindFrequencyData[i];
-    }
-    average = values/length;
-    this.behindTenBass[this.bassIndex] = average;
 
-    this.bassIndex = (this.bassIndex + 1) % 30;
+    this.bassIndex = (this.bassIndex + 1) % 20;
   }
 
   this.getCentroid = function() {
@@ -142,8 +126,25 @@ function youtubeAudio(link){
     if(this.bassLevel == 0){
       return false;
     }
+    if(this.isPeak){
+    	this.isPeak = false
+    	return this.isPeak;
+    }
     var behindMax = Math.max(...this.behindTenBass);
     var aheadMax = Math.max(...this.aheadTenBass);
+    /*
+    var behindAverage = 0;
+    for(var i = 0; i < this.behindTenBass.length; i++){
+    	behindAverage += this.behindTenBass[i]
+    }
+    behindAverage /= this.behindTenBass.length;
+    var aheadAverage = 0;
+    for(var i = 0; i < this.aheadTenBass.length; i++){
+    	aheadAverage += this.aheadTenBass[i]
+    }
+    aheadAverage /= this.aheadTenBass.length;
+    */
     return (this.bassLevel == Math.max(this.bassLevel, behindMax, aheadMax));
+    //return (this.bassLevel > aheadAverage && this.bassLevel > behindAverage);
   }
 }

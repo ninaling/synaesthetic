@@ -22,7 +22,7 @@ function setup(){
 
   mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
 	mic.play();
-	frameRate(50);
+	frameRate(30);
 }
 
 function draw() {
@@ -36,9 +36,9 @@ function draw() {
 		bassLevelMultiplier: bassLevelMultiplier
 	};
 	if(mic.detectBassPeak()){
-		console.log(bassLevel);
+		background(0)
 	}
-	background(darkPurple);
+	//background(darkPurple);
 	system.run(props);
 	system.addParticle();
 }
