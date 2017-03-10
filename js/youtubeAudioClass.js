@@ -8,7 +8,7 @@ function youtubeAudio(link){
   this.playing = false;
 
   this.button = document.createElement("img");
-  this.button.setAttribute('src', '../assets/play-icon.svg');
+  this.button.setAttribute('src', '../assets/pause-icon.svg');
   this.button.setAttribute('id', 'play-pause-button');
   this.button.style.width = "35px";
   this.button.addEventListener('click', function() {
