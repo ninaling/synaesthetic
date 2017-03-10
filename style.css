@@ -6,6 +6,21 @@
 body{
 	background-color: #270227;
 }
+/*body #background-stars {
+	-webkit-filter: hue-rotate(300deg) saturate(8);
+	filter: hue-rotate(300deg) saturate(8);
+}
+
+body #webgl {
+	-webkit-filter: hue-rotate(300deg) saturate(8);
+	filter: hue-rotate(300deg) saturate(8);
+}*/
+
+#container {
+	width: 100vw;
+	height: 100vh;
+	position: relative;
+}
 
 button:focus,
 input:focus{
@@ -54,6 +69,7 @@ canvas {
 	position: absolute;
 	z-index: 5;
 }
+
 
 /*===============YT SELECTION=============*/
 
@@ -155,12 +171,6 @@ a:hover .item{
 	-webkit-transform: translateX(20px);
 			transform: translateX(20px);
 }
-
-
-
-
-
-
 
 
 
