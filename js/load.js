@@ -4,6 +4,7 @@
   }
 
   load('/js/models.js');
+  load('/js/colors.js');
   load('/js/rings.js');
   load('/js/script.js');
   
