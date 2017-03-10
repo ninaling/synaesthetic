@@ -1,193 +1,221 @@
-/*"use strict";
 
-var darkPurple = '#270227';
+var RingAnimator = (function() {
+    var webglEl = document.getElementById('webgl');
 
-var winWidth = window.innerWidth;
-var winHeight = window.innerHeight;
+    THREE.ImageUtils.crossOrigin = '';
 
-var planet;
+    var width = window.innerWidth,
+        height = window.innerHeight;
+    var radius = 0.45,
+        currentSegment = 30,
+        rotation = 5;
 
-function setup(){
-	createCanvas(winWidth, winHeight);
-	planet = new Planet(true, 100);
-}
+    var scene, camera, renderer, isPlaying;
+    var orbitPath, orbitIndex, noiseForPath, rollwindow, avg;
+    var sphere, sphereDirectionX, rings, controls;
+    var square;
 
-function draw(){
-	background(darkPurple);
-	planet.run();
-}
+    var afterFirstRender, longRoller, maxScale = 0;
 
-var Planet = function(hasRing, radius){
+    var aCtx, analyser, microphone;
+    var peakDone, peakThrottle = 0;
 
-	this.radius = radius;
-	this.hasRing = hasRing;
-	this.position = createVector(width/2, height/2);
+    function checkCompatible(){
+        if (!Detector.webgl) {
+            Detector.addGetWebGLMessage(webglEl);
+            return false;
+        }
+        return true;
+    }
 
-	if(this.hasRing)
-	{
+    function initScene(){
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(45, width / height, 0.05, 1000);
 
-	}
+        camera.position.z = 5;
+        camera.position.y = 2;
 
-}
+        isPlaying = true;
 
-Planet.prototype.run = function(){
-	this.update();
-	this.display();
-}
+        renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(width, height);
+        renderer.setClearColor( 0x000000, 0 ); // the default
+    }
 
-Planet.prototype.update = function(){
+    function initOrbitPath(){
+        orbitPath = (function createOrbitPath () {
+            var radius = 2,
+                segments = 256,
+                material = new THREE.LineBasicMaterial( { color: 0xffffff, transparent: true, opacity: 0.2 } ),
+                geometry = new THREE.CircleGeometry( radius, segments );
 
-}
+            geometry.verticesNeedUpdate = true;
+            geometry.dynamic = true;
 
-Planet.prototype.display = function(){
-	fill('rgba(253, 102, 96)');
-	strokeWeight(0);
-	ellipse(this.position.x, this.position.y, this.radius, this.radius);
-}
+            // Remove center vertex
+            geometry.vertices.shift();
 
+            var orbitPath = new THREE.Line( geometry, material );
 
-*/
+            orbitPath.rotation.x = Math.PI/2;
 
-$(document).on('ready', function() {
+            scene.add(orbitPath);
+            return orbitPath;
 
-	(function() {
+        })();
 
-		var width = window.innerWidth,
-	        height = window.innerHeight;
-	    var radius = 0.45,
-	       	segments = 30,
-	        rotation = 5;
-	    var isWireFrame = true;
-	    var scene, camera, controls, renderer;
-	    var sphere, rings;
+        noiseForPath = orbitPath.geometry.vertices.map(() => Math.random());
+        rollwindow = 10;
+        avg = noiseForPath.slice(0,rollwindow).reduce((acc, val) => acc+val, 0)*1.0/rollwindow;
+        smoothnoise = noiseForPath.map((val, i) => {
+            avg += noiseForPath[(i+rollwindow)%noiseForPath.length]*1.0/rollwindow;
+            avg -= noiseForPath[i]*1.0/rollwindow;
+            return avg;
+        });
 
-		init();
+        orbitIndex = 0;
+    }
 
-		function init(){
-			var webglEl = document.getElementById('webgl');
+    function initRingedPlanet(hasOrbit, segments){
+        if(hasOrbit)
+            initOrbitPath();
 
-			if (!Detector.webgl) {
-				Detector.addGetWebGLMessage(webglEl);
-				return;
-			} 
+        sphere = Models.createSphere(radius, segments);
+        sphere.rotation.y = rotation;
+        sphereDirectionX = 1;
 
-	        THREE.ImageUtils.crossOrigin = '';
+        if(hasOrbit)
+            orbitPath.add(sphere);
+        else
+            scene.add(sphere);
+        
+        rings = Models.createRings(radius, segments);
+        rings.rotation.y = rotation;
+        sphere.add(rings);
 
-	        scene = new THREE.Scene();
-	        camera = new THREE.PerspectiveCamera(45, width / height, 0.05, 1000);
+        rings.scale.x = 1.1;
+        rings.scale.z = 1.1;
+    }
 
-	        camera.position.z = 3;
-	        camera.position.y = 2;
-	        camera.position.x = 2;
+    function init(micIn){
 
-	        renderer = new THREE.WebGLRenderer({ alpha: true });
-	        renderer.setSize(width, height);
-	        renderer.setClearColor( 0x000000, 0 ); // the default
+        initScene();
 
-	        sphere = createSphere(radius, segments);
-	        sphere.rotation.y = rotation;
-	        scene.add(sphere);
+        hasOrbit = false;
+        initRingedPlanet(hasOrbit, currentSegment);
 
-	        rings = createRings(radius, segments);
-	        rings.rotation.y = rotation;
-	        scene.add(rings);
+        controls = new THREE.TrackballControls(camera);
+        controls.enabled = false;
 
-	      //  var background = createBackground(90, 64);
-	      //  scene.add(background);
+        webglEl.appendChild(renderer.domElement);
+        
+        peakDone = false;
 
-	        controls = new THREE.TrackballControls(camera);
-	        webglEl.appendChild(renderer.domElement);
+        render(micIn, hasOrbit);
+        afterFirstRender = false;
 
-	        render();
-	        
-		}
-		var first = true;
-        function render() {
+    }
 
-        	if(first){
-        		controls.update();
-        		//disables mouse control
-        		//first = false;
-        	}
-        	rings.rotation.y += 0.05;
-        	rings.rotation.x += 0.05;
-        	//rings.rotation.z += 0.05;
+    function enableDoubleShadow(amp){
+        camera.position.x += amp / 256 * 2 * sphereDirectionX;
 
- 			//sphere = createSphere(radius, segments++);
-        	
-        	sphere.rotation.x += 0.02;
-        	sphere.rotation.y += 0.05;
+        if(amp > 150 || camera.position.x < 200 || camera.position.x > -200)
+            sphereDirectionX *= -1;
+    }
 
-        	requestAnimationFrame(render);
-        	renderer.render(scene, camera);
+    function render(micIn) {
 
-        	//update(new THREE.Vector3(0.01, 0.01, 0.01));
+        if (!isPlaying) return;
+
+        controls.update();
+
+        var amp = micIn.getAmplitude();
+        var bass = micIn.getBass();
+        var centroid = micIn.getCentroid();
+
+        console.log('amp', amp);
+        console.log('bass', bass);
+        console.log('centroid', centroid);
+
+        if(hasOrbit){
+            if (afterFirstRender)
+                orbitPath.geometry.verticesNeedUpdate = true;
+
+            (function () {
+                if (typeof micIn != 'undefined' && micIn.analyser) {
+                    for (var i = 0; i < smoothnoise.length; i++) {
+                        //getBass()
+                        orbitPath.geometry.vertices[i].setZ(smoothnoise[i] * micIn.getAmplitude() / 100);
+                        //orbitPath.geometry.vertices[i].setX(smoothnoise[i] * micIn.getAmplitude() / 100);
+                        //orbitPath.geometry.vertices[i].setY(smoothnoise[i] * micIn.getAmplitude() / 100);
+                    }
+                }
+                orbitIndex = (orbitIndex+1) % orbitPath.geometry.vertices.length;
+                var newpos = orbitPath.geometry.vertices[orbitIndex];
+                sphere.position.set(newpos.x, newpos.y, newpos.z);
+            })();
         }
 
-        function update(dir){
-        	sphere.position.x += dir.x;
-        	rings.position.x += dir.x;
+        //change segments
+        if(bass > 240)
+            peakDone = true;
 
-        	sphere.position.y += dir.y;
-        	rings.position.y += dir.y;
+        peakThrottle++;
 
-        	sphere.position.z += dir.z;
-        	rings.position.z += dir.z;
+        if(peakDone && peakThrottle > 100){
+            if(currentSegment == 30)
+                changePlanetSegments(sphere, radius, 1);
+            else
+                changePlanetSegments(sphere, radius, 30);
+
+            peakDone = false;
+            peakThrottle = 0;
         }
 
-        function createSphere(radius, segments) {
-        	return new THREE.Mesh(
-        		new THREE.SphereGeometry(radius, segments, segments),
-        		new THREE.MeshBasicMaterial(
-        			{
-        				color: '#ed4c51',
-        				wireframe: isWireFrame
-        			}
-        		)
-        	);
+        //rotation and scale for planet
+        var scaleFactor = 1 + bass/256;
+        var rotationFactor = amp / 2560;
+
+        rings.scale.x = scaleFactor;
+        rings.scale.z = scaleFactor;
+        
+        rings.rotation.x += rotationFactor * 2;
+        rings.rotation.y += rotationFactor * 3;
+        
+        sphere.rotation.x += rotationFactor * 2;
+        sphere.rotation.y += rotationFactor * 3;
+
+
+        requestAnimationFrame(function(micIn){
+            render(micIn);
+        }.bind(null, micIn));
+
+        renderer.render(scene, camera);
+        afterFirstRender = true;
+    }
+    function changePlanetSegments(object, radius, segments){
+        if(segments != currentSegment){
+            currentSegment = segments;
+            scene.remove(object);
+            initRingedPlanet(false, segments);
         }
-        function createRings(radius, segments) {
-        	return new THREE.Mesh(
-        		new THREE.XRingGeometry(1.2 * radius, 2 * radius, 2 * segments, 5, 0, Math.PI * 2),
-        		new THREE.MeshBasicMaterial(
-        			{	
-        				color: '#f8de5c',
-        				wireframe: isWireFrame,
-        				side: THREE.DoubleSide, transparent: true, opacity: 0.9
-        			}
-        		)
-        	);
-        }
+    }
 
-        window.addEventListener('resize', function() {
-		    var WIDTH = window.innerWidth,
-		        HEIGHT = window.innerHeight;
-		    renderer.setSize(WIDTH, HEIGHT);
-		    camera.aspect = WIDTH / HEIGHT;
-		    camera.updateProjectionMatrix();
-		});
+    return {
+        checkCompatible: checkCompatible,
+        init: init
+    }
 
-       /* function createBackground(radius, segments) {
-        	return new THREE.Mesh(
-        		new THREE.SphereGeometry(radius, segments, segments),
-        		new THREE.MeshBasicMaterial(
-        			{
-        				//map: THREE.ImageUtils.loadTexture('https://cdn.rawgit.com/bubblin/The-Solar-System/master/images/shared/galaxy_starfield.jpg'),
-        				color: 'rgb(255,0,0)',
-        				side: THREE.BackSide, transparent: true, opacity: 0
-        			})
-        		); 
-        } */
+    window.addEventListener('resize', function() {
+        var WIDTH = window.innerWidth,
+            HEIGHT = window.innerHeight;
+        renderer.setSize(WIDTH, HEIGHT);
+        camera.aspect = WIDTH / HEIGHT;
+        camera.updateProjectionMatrix();
 
-	}());
-});
+    });
 
-
-
-
-
-
-
+}());
 
 
 
