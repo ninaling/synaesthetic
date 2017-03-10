@@ -1,7 +1,6 @@
 var http = require('http')
 var fs = require('fs')
 var stream = require('youtube-audio-stream')
-var path = require('path');
 var express = require('express');
 var path = require('path');
 
@@ -17,6 +16,11 @@ app.get(/^\/watch/, function (req, res) {
 app.get(/youtube/, function (req, res) {
   stream(req.url.slice(1)).pipe(res);
   console.log("hai2");
+})
+
+app.get('/', function(req, res) {
+  res.render('index');
+  console.log('hai3');
 })
 
 app.set('port', process.env.PORT || 3000);
