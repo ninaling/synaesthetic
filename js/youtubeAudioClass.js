@@ -43,6 +43,8 @@ function youtubeAudio(link){
   this.play = function(){
     this.player.play();
     this.playing = true;
+    var button = document.getElementById('play-pause-button');
+    button.setAttribute('src', '../assets/pause-icon.svg');
   };
 
   this.FFT = function(){
