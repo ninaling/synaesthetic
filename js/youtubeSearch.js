@@ -24,8 +24,7 @@ $(function(){
             type: 'video',
             q: encodeURIComponent($('.search-input').val()).replace(/%20/g, "+") + ' song',
             maxResults: 5,
-            order: 'viewCount',
-            publishedAfter: '2015-01-01T00:00:00Z'
+            order: 'relevance'
        }); 
 
 		request.execute(function(response) {
