@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
+  "engines": {
+    "node": "7.5.0",
+    "npm": "4.1.2"
+  },
   "dependencies": {
     "express": "^4.14.1",
     "ffmpeg": "^0.0.4",
