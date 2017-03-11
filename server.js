@@ -10,22 +10,15 @@ app.use(express.static(__dirname));
 
 app.get(/^\/watch/, function (req, res) {
   res.sendFile(path.join(__dirname + '/synaesthetic.html'));
-  console.log("hai");
 });
 
 app.get(/youtube/, function (req, res) {
   stream(req.url.slice(1)).pipe(res);
-  console.log("hai2");
 });
 
 app.get('/', function(req, res) {
   res.render('index');
-  console.log('hai3');
 });
-
-console.log(process.env.PORT);
-
-// app.set('port', process.env.PORT || 3000);
 
 var server = app.listen(process.env.PORT || 3000, function() {
   console.log('open http://localhost:3000 for demo of audio stream')
