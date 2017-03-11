@@ -13,7 +13,6 @@ function youtubeAudio(link){
   this.button.style.width = "35px";
   this.button.addEventListener('click', function() {
     var player = document.getElementById("audioPlayer");
-    var button = document.getElementById('play-pause-button');
     if(!player.paused){
       player.pause();
     }
