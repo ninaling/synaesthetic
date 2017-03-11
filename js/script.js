@@ -21,9 +21,10 @@ function setup(){
 	system = new ParticleSystem(400, 15);
 
 	console.log("hai");
-
-    //mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
-		mic = new youtubeAudio('youtube.com/watch?v=dSYu8FLVr_Y');
+		var url = document.URL;
+		console.log(url);
+    mic = new youtubeAudio(window.location.href.replace(/.*\//g, "youtube.com/"));
+		//mic = new youtubeAudio('youtube.com/watch?v=dSYu8FLVr_Y');
 	mic.play();
 
 	if(RingAnimator.checkCompatible())
