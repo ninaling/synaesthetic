@@ -25,9 +25,9 @@ app.get('/', function(req, res) {
 
 console.log(process.env.PORT);
 
-app.set('port', process.env.PORT || 3000);
+// app.set('port', process.env.PORT || 3000);
 
-var server = app.listen(app.get('port'), "localhost", function() {
+var server = app.listen(process.env.PORT || 3000, function() {
   console.log('open http://localhost:3000 for demo of audio stream')
 })
 
