@@ -23,7 +23,7 @@ function setup(){
 	console.log("hai");
 
     //mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
-		mic = new youtubeAudio("http://youtube.com/watch?v=dSYu8FLVr_Y");
+		mic = new youtubeAudio('youtube.com/watch?v=dSYu8FLVr_Y');
 	mic.play();
 
 	if(RingAnimator.checkCompatible())
