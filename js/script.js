@@ -20,7 +20,7 @@ function setup(){
 	c.parent("background-stars");
 	system = new ParticleSystem(400, 15);
 
-    mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
+  mic = new youtubeAudio(window.location.href.replace(/.*\//g, "youtube.com/"));
 	mic.play();
 
 	if(RingAnimator.checkCompatible())
@@ -58,7 +58,7 @@ var Particle = function(radius){
 	//random generation
 	this.generateRandom();
 
-//derived properties from random
+	//derived properties from random
 	this.velocity = createVector(
 						(this.randomX * this.velocityMax * 1.4 - this.velocityMax * 0.85)/5,
 						(this.randomY * this.velocityMax * 1.4 - this.velocityMax * 0.85)/10 //divide by 3 to lessen y particles moving out of screen
