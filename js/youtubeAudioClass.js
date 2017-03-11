@@ -11,8 +11,10 @@ function youtubeAudio(link){
   this.button.setAttribute('src', '../assets/play-icon.svg');
   this.button.setAttribute('id', 'play-pause-button');
   this.button.style.width = "35px";
+
   this.button.addEventListener('click', function(e){
     toggleSong(true, e);
+
   });
   document.addEventListener('keydown', function(e){
     toggleSong(false, e);
