@@ -11,16 +11,28 @@ function youtubeAudio(link){
   this.button.setAttribute('src', '../assets/play-icon.svg');
   this.button.setAttribute('id', 'play-pause-button');
   this.button.style.width = "35px";
-  this.button.addEventListener('click', function() {
-    var player = document.getElementById("audioPlayer");
-    var button = document.getElementById('play-pause-button');
-    if(!player.paused){
-      player.pause();
-    }
-    else{
-      player.play();
-    }
+  this.button.addEventListener('click', function(e){
+    toggleSong(true, e);
   });
+  document.addEventListener('keydown', function(e){
+    toggleSong(false, e);
+  });
+  
+
+  function toggleSong(isMouseEvent, event) {
+
+    if(isMouseEvent || event.keyCode == 32)
+    {
+      var player = document.getElementById("audioPlayer");
+      var button = document.getElementById('play-pause-button');
+      if(!player.paused){
+        player.pause();
+      }
+      else{
+        player.play();
+      }
+    }
+  };
 
   document.getElementById('button-container').appendChild(this.button);
 
@@ -36,6 +48,10 @@ function youtubeAudio(link){
     var button = document.getElementById('play-pause-button');
     button.setAttribute('src', '../assets/pause-icon.svg');
   };
+  this.audio.onended = function(){
+      alert("The audio has ended");
+  }
+
 
   this.delay = this.audioCtx.createDelay(5.0);
   this.delay.delayTime.value = 0.07; //adjustable delay! (value is in seconds)
@@ -92,4 +108,9 @@ function youtubeAudio(link){
     average = values / length;
     return average;
   };
+
+  this.isDone = function(){
+    if(this.getAmplitude() == 0 && this.getBass() == 0 && this.getCentroid() == NaN)
+      alert('hi');
+  }
 }
