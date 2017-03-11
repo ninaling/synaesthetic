@@ -18,7 +18,7 @@ var winHeight = window.innerHeight;
 function setup(){
 	c = createCanvas(winWidth, winHeight);
 	c.parent("background-stars");
-	system = new ParticleSystem(400, 10);
+	system = new ParticleSystem(400, 15);
 
     mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
 	mic.play();

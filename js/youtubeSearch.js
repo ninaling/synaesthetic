@@ -22,7 +22,7 @@ $(function(){
 		var request = gapi.client.youtube.search.list({
             part: 'snippet',
             type: 'video',
-            q: encodeURIComponent($('.search-input').val()).replace(/%20/g, "+") + ' song',
+            q: encodeURIComponent($('.search-input').val() + (smartsearch ? ' lyric video' : '')).replace(/%20/g, "+"),
             maxResults: 5,
             order: 'relevance'
        }); 

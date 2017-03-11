@@ -16,6 +16,8 @@ var colorFilters = [
 var backgroundStars = document.getElementById("background-stars");
 var webGLElement = document.getElementById("webgl");
 
+
+/*
 function applyColorFilter(bassLevel) {
   if (bassLevel > 230) {
     var i = Math.floor(Math.random() * colorFilters.length);
@@ -24,9 +26,42 @@ function applyColorFilter(bassLevel) {
     backgroundStars.style.filter = colorStyle;
     webGLElement.style.filter = colorStyle;
   }
-  else {
-    var colorStyle = "hue-rotate(0deg) saturate(1)";
-    backgroundStars.style.filter = colorStyle;
-    webGLElement.style.filter = colorStyle;
-  }
+
 }
+*/
+
+var applyColorFilter = (function (){
+
+  var sat = 0;
+
+  return function (bassLevel) {
+      var style = "";
+      var op = 1;
+
+      if (bassLevel > 240) {
+        sat++;
+        var i = Math.floor(Math.random() * colorFilters.length);
+        i = 1;
+        
+        console.log('running...')
+
+        style += "hue-rotate(" + colorFilters[i].hueRotate + "deg) ";
+        style += "saturate(" + sat + ")";
+
+       //var rand = Math.random();
+
+       // style += "invert(100%) ";
+       // style += "grayscale(100%) ";
+        op = 0;
+        
+      }
+        
+
+      backgroundStars.style.filter = style;
+      webGLElement.style.filter = style;
+
+    };
+
+})();
+
+
