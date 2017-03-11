@@ -45,8 +45,13 @@ function draw() {
 
 	background(darkPurple);
 	system.run(props);
-	applyColorFilter(bassLevel);
-	system.addParticle();
+    applyColorFilterStars(bassLevel);
+    applyColorFilterBackground(bassLevel);
+	//setTimeout(function(){
+    //    applyColorFilter(bassLevel);//Call every 5 seconds after being called 
+    //    console.log('setTimeout');
+    //}, 5000);
+    system.addParticle();
 }
 
 var Particle = function(radius){
@@ -132,6 +137,20 @@ function getMean(arr, n) {
   return sum / n;
 }
 
+function debounce(func, wait, immediate){
+    var timeout;
+    return function(){
+        var context = this, args = arguments;
+        var later = function() {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        };
+        var callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(context, args);
+    };
+};
 
 // var player;
 // var fftbins;

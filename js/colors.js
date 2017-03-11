@@ -16,6 +16,48 @@ var colorFilters = [
 var backgroundStars = document.getElementById("background-stars");
 var webGLElement = document.getElementById("webgl");
 
+var applyColorFilterBackground = (function (){
+
+  var sat = 0;
+
+  return function (bassLevel) {
+      var style = "";
+      if (bassLevel > 200) {
+        sat++;
+        var i = Math.floor(Math.random() * colorFilters.length);
+        console.log(i);
+        
+        console.log('running...');
+
+        style += "hue-rotate(" + 255 + "deg) ";
+        style += "saturate(" + sat + ")";
+        }      
+        backgroundStars.style.filter = style;
+    };
+})();
+
+var applyColorFilterStars = (function (){
+
+  var sat = 0;
+
+  return function (bassLevel) {
+      var style = "";
+
+      if (bassLevel > 200) {
+        sat+=5;
+        var i = Math.floor(Math.random() * colorFilters.length);
+        console.log(i);
+        
+        console.log('running...');
+
+        style += "hue-rotate(" + colorFilters[i].hueRotate + "deg) ";
+        style += "saturate(" + sat + ")";
+      }
+      webGLElement.style.filter = style;
+    };
+
+})();
+
 
 /*
 function applyColorFilter(bassLevel) {
@@ -30,38 +72,8 @@ function applyColorFilter(bassLevel) {
 }
 */
 
-var applyColorFilter = (function (){
+//var rand = Math.random();
 
-  var sat = 0;
-
-  return function (bassLevel) {
-      var style = "";
-      var op = 1;
-
-      if (bassLevel > 240) {
-        sat++;
-        var i = Math.floor(Math.random() * colorFilters.length);
-        i = 1;
-        
-        console.log('running...')
-
-        style += "hue-rotate(" + colorFilters[i].hueRotate + "deg) ";
-        style += "saturate(" + sat + ")";
-
-       //var rand = Math.random();
-
-       // style += "invert(100%) ";
-       // style += "grayscale(100%) ";
-        op = 0;
-        
-      }
-        
-
-      backgroundStars.style.filter = style;
-      webGLElement.style.filter = style;
-
-    };
-
-})();
-
+// style += "invert(100%) ";
+// style += "grayscale(100%) ";
 
