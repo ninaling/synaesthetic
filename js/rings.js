@@ -15,11 +15,10 @@ var RingAnimator = (function() {
     var hasOrbit = false;
     var scene, camera, renderer, isPlaying;
     var orbitPath, orbitIndex, noiseForPath, rollwindow, avg;
-    var sphere, sphereDirectionX, rings, controls;
+    var sphere, rings;
     var square;
     var segmentDir = -1;
     
-
     var afterFirstRender, longRoller, maxScale = 0;
 
     var aCtx, analyser, microphone;
@@ -33,13 +32,20 @@ var RingAnimator = (function() {
         return true;
     }
 
+    var cube;
+
     function init(micIn){
 
         initScene();
         initRingedPlanet(hasOrbit, segmentsArr[curSegment], new THREE.Euler(rotation, rotation, rotation), new THREE.Euler(rotation, rotation, rotation), new THREE.Vector3(1,1,1));
 
-       // controls = new THREE.TrackballControls(camera);
-       // controls.enabled = false;
+     //   cube = new Models.cube(1, '#62c2bc');
+     //   initOrbitPath();
+     //   orbitPath.add(cube.obj);
+       // scene.add(orbitPath);
+
+     //   var cube = Models.createCube(1, '#fff');
+     //   scene.add(cube);
 
         webglEl.appendChild(renderer.domElement);
         peakDone = false;
@@ -94,6 +100,7 @@ var RingAnimator = (function() {
         });
 
         orbitIndex = 0;
+
     }
 
     function initRingedPlanet(hasOrbit, segments, rotationSphere, rotationRing, scale){
@@ -102,7 +109,6 @@ var RingAnimator = (function() {
 
         sphere = Models.createSphere(radius, segments);
         sphere.rotation = rotationSphere;
-        sphereDirectionX = 1;
 
         if(hasOrbit)
             orbitPath.add(sphere);
@@ -123,18 +129,10 @@ var RingAnimator = (function() {
         sphere.position.setZ(2);
     }
 
-    function enableDoubleShadow(amp){
-        camera.position.x += amp / 256 * 2 * sphereDirectionX;
-
-        if(amp > 150 || camera.position.x < 200 || camera.position.x > -200)
-            sphereDirectionX *= -1;
-    }
 
     function render(micIn) {
 
         if (!isPlaying) return;
-
-      //  controls.update();
 
         var amp = micIn.getAmplitude();
         var bass = micIn.getBass();
@@ -192,6 +190,8 @@ var RingAnimator = (function() {
 
         sphere.rotation.x += rotationFactor * 2;
         sphere.rotation.y += rotationFactor * 3;
+
+      //  cube.update(amp, bass, centroid);
 
 
         requestAnimationFrame(function(micIn){
