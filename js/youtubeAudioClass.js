@@ -1,5 +1,5 @@
 function youtubeAudio(link){
-  this.player = new window.Audio('youtube.com/watch?v=dSYu8FLVr_Y');
+  this.player = new window.Audio(link);
   this.player.preload = 'metadata';
   this.player.setAttribute("id", "audioPlayer");
   this.player.controls = false;
