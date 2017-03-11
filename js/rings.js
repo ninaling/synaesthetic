@@ -4,16 +4,21 @@ var RingAnimator = (function() {
 
     THREE.ImageUtils.crossOrigin = '';
 
+    var segmentsArr = [1,2,3,4,6,8,10,15,20];
+
     var width = window.innerWidth,
         height = window.innerHeight;
     var radius = 0.45,
-        currentSegment = 30,
-        rotation = 5;
+        curSegment = segmentsArr.length - 1,
+        rotation = 3;
 
+    var hasOrbit = false;
     var scene, camera, renderer, isPlaying;
     var orbitPath, orbitIndex, noiseForPath, rollwindow, avg;
     var sphere, sphereDirectionX, rings, controls;
     var square;
+    var segmentDir = -1;
+    
 
     var afterFirstRender, longRoller, maxScale = 0;
 
@@ -28,12 +33,27 @@ var RingAnimator = (function() {
         return true;
     }
 
+    function init(micIn){
+
+        initScene();
+        initRingedPlanet(hasOrbit, segmentsArr[curSegment], new THREE.Euler(rotation, rotation, rotation), new THREE.Euler(rotation, rotation, rotation), new THREE.Vector3(1,1,1));
+
+       // controls = new THREE.TrackballControls(camera);
+       // controls.enabled = false;
+
+        webglEl.appendChild(renderer.domElement);
+        peakDone = false;
+
+        render(micIn, hasOrbit);
+        afterFirstRender = false;
+
+    }
+
     function initScene(){
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(45, width / height, 0.05, 1000);
 
-        camera.position.z = 5;
-        camera.position.y = 2;
+        camera.position.z = 8;
 
         isPlaying = true;
 
@@ -76,12 +96,12 @@ var RingAnimator = (function() {
         orbitIndex = 0;
     }
 
-    function initRingedPlanet(hasOrbit, segments){
+    function initRingedPlanet(hasOrbit, segments, rotationSphere, rotationRing, scale){
         if(hasOrbit)
             initOrbitPath();
 
         sphere = Models.createSphere(radius, segments);
-        sphere.rotation.y = rotation;
+        sphere.rotation = rotationSphere;
         sphereDirectionX = 1;
 
         if(hasOrbit)
@@ -90,30 +110,17 @@ var RingAnimator = (function() {
             scene.add(sphere);
         
         rings = Models.createRings(radius, segments);
-        rings.rotation.y = rotation;
+        rings.rotation.x = rotationRing.x;
+        rings.rotation.y = rotationRing.y;
+        rings.rotation.z = rotationRing.z;
+
+        rings.scale.x = scale.x;
+        rings.scale.y = scale.y;
+        rings.scale.z = scale.z;
+
         sphere.add(rings);
 
-        rings.scale.x = 1.1;
-        rings.scale.z = 1.1;
-    }
-
-    function init(micIn){
-
-        initScene();
-
-        hasOrbit = false;
-        initRingedPlanet(hasOrbit, currentSegment);
-
-        controls = new THREE.TrackballControls(camera);
-        controls.enabled = false;
-
-        webglEl.appendChild(renderer.domElement);
-        
-        peakDone = false;
-
-        render(micIn, hasOrbit);
-        afterFirstRender = false;
-
+        sphere.position.setZ(2);
     }
 
     function enableDoubleShadow(amp){
@@ -127,15 +134,11 @@ var RingAnimator = (function() {
 
         if (!isPlaying) return;
 
-        controls.update();
+      //  controls.update();
 
         var amp = micIn.getAmplitude();
         var bass = micIn.getBass();
         var centroid = micIn.getCentroid();
-
-        console.log('amp', amp);
-        console.log('bass', bass);
-        console.log('centroid', centroid);
 
         if(hasOrbit){
             if (afterFirstRender)
@@ -163,17 +166,22 @@ var RingAnimator = (function() {
         peakThrottle++;
 
         if(peakDone && peakThrottle > 100){
-            if(currentSegment == 30)
-                changePlanetSegments(sphere, radius, 1);
-            else
-                changePlanetSegments(sphere, radius, 30);
+            
+            var tempIndex = curSegment + segmentDir;
+            changePlanetSegments(sphere, radius, tempIndex);
+            curSegment = tempIndex;
+
+            if(curSegment >= segmentsArr.length - 1)
+                segmentDir = -1;
+            else if (curSegment <= 0)
+                segmentDir = 1;
 
             peakDone = false;
             peakThrottle = 0;
         }
 
         //rotation and scale for planet
-        var scaleFactor = 1 + bass/256;
+        var scaleFactor = 1 + bass/200;
         var rotationFactor = amp / 2560;
 
         rings.scale.x = scaleFactor;
@@ -181,7 +189,7 @@ var RingAnimator = (function() {
         
         rings.rotation.x += rotationFactor * 2;
         rings.rotation.y += rotationFactor * 3;
-        
+
         sphere.rotation.x += rotationFactor * 2;
         sphere.rotation.y += rotationFactor * 3;
 
@@ -194,10 +202,15 @@ var RingAnimator = (function() {
         afterFirstRender = true;
     }
     function changePlanetSegments(object, radius, segments){
-        if(segments != currentSegment){
-            currentSegment = segments;
+        if(segments != curSegment){
+            curSegment = segments;
+            
+            var rotationSphere = object.rotation;
+            var rotationRing = object.children[0].rotation;
+            var tempScale = object.children[0].scale;
+
             scene.remove(object);
-            initRingedPlanet(false, segments);
+            initRingedPlanet(false, segmentsArr[curSegment], rotationSphere, rotationRing, tempScale);
         }
     }
 
