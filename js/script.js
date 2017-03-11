@@ -20,11 +20,7 @@ function setup(){
 	c.parent("background-stars");
 	system = new ParticleSystem(400, 15);
 
-	console.log("hai");
-		var url = document.URL;
-		console.log(url);
-    mic = new youtubeAudio(window.location.href.replace(/.*\//g, "youtube.com/"));
-		//mic = new youtubeAudio('youtube.com/watch?v=dSYu8FLVr_Y');
+  mic = new youtubeAudio(window.location.href.replace(/.*\//g, "youtube.com/"));
 	mic.play();
 
 	if(RingAnimator.checkCompatible())

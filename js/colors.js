@@ -42,7 +42,7 @@ var applyColorFilter = (function (){
         sat++;
         var i = Math.floor(Math.random() * colorFilters.length);
         i = 1;
-        
+
         console.log('running...')
 
         style += "hue-rotate(" + colorFilters[i].hueRotate + "deg) ";
@@ -53,9 +53,9 @@ var applyColorFilter = (function (){
        // style += "invert(100%) ";
        // style += "grayscale(100%) ";
         op = 0;
-        
+
       }
-        
+
 
       backgroundStars.style.filter = style;
       webGLElement.style.filter = style;
@@ -63,5 +63,3 @@ var applyColorFilter = (function (){
     };
 
 })();
-
-

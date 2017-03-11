@@ -47,8 +47,8 @@ function youtubeAudio(link){
   this.frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
 
   this.play = function(){
-    //this.player.play();
-    //this.playing = true;
+    this.player.play();
+    this.playing = true;
   };
 
   this.FFT = function(){
