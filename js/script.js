@@ -20,6 +20,8 @@ function setup(){
 	c.parent("background-stars");
 	system = new ParticleSystem(400, 15);
 
+	console.log("hai");
+
     mic = new youtubeAudio(window.location.href.replace(/http:\/\/localhost[^\/]*\//, "www.youtube.com/"));
 	mic.play();
 
