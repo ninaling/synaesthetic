@@ -45,8 +45,12 @@ function draw() {
 
 	background(darkPurple);
 	system.run(props);
-    applyColorFilterStars(bassLevel);
-    applyColorFilterBackground(bassLevel);
+    debounce(function() {
+        applyColorFilterBackground(bassLevel);
+    }, 5000);
+
+    //applyColorFilterStars(bassLevel);
+    //applyColorFilterBackground(bassLevel);
 	//setTimeout(function(){
     //    applyColorFilter(bassLevel);//Call every 5 seconds after being called 
     //    console.log('setTimeout');
@@ -137,17 +141,20 @@ function getMean(arr, n) {
   return sum / n;
 }
 
+
+//DEBOUNCE FUNCTION
 function debounce(func, wait, immediate){
     var timeout;
     return function(){
         var context = this, args = arguments;
-        var later = function() {
-            timeout = null;
-            if (!immediate) func.apply(context, args);
-        };
         var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+        clearTimeout(timeout); 
+        timeout = setTimeout(function() {
+            timeout = null;
+            if(!immediate) {
+                func.apply(context, args);
+            }
+        }, wait);
         if (callNow) func.apply(context, args);
     };
 };

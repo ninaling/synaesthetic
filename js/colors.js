@@ -17,9 +17,7 @@ var backgroundStars = document.getElementById("background-stars");
 var webGLElement = document.getElementById("webgl");
 
 var applyColorFilterBackground = (function (){
-
   var sat = 0;
-
   return function (bassLevel) {
       var style = "";
       if (bassLevel > 200) {
@@ -27,19 +25,18 @@ var applyColorFilterBackground = (function (){
         var i = Math.floor(Math.random() * colorFilters.length);
         console.log(i);
         
-        console.log('running...');
+        console.log('running background');
 
         style += "hue-rotate(" + 255 + "deg) ";
         style += "saturate(" + sat + ")";
-        }      
-        backgroundStars.style.filter = style;
+        //RETURN TRUE FALSE    
+      }
+      backgroundStars.style.filter = style;
     };
 })();
 
 var applyColorFilterStars = (function (){
-
   var sat = 0;
-
   return function (bassLevel) {
       var style = "";
 
@@ -48,10 +45,11 @@ var applyColorFilterStars = (function (){
         var i = Math.floor(Math.random() * colorFilters.length);
         console.log(i);
         
-        console.log('running...');
+        console.log('running stars');
 
         style += "hue-rotate(" + colorFilters[i].hueRotate + "deg) ";
         style += "saturate(" + sat + ")";
+        //Return FALSE/TRUE
       }
       webGLElement.style.filter = style;
     };
