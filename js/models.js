@@ -4,12 +4,17 @@ var Models = (function(){
     var winWidth = window.innerWidth;
     var winHeight = window.innerHeight;
 
-	function createSphere(radius, segments) {
+    /*
+    * Pure Three.JS objects
+    * Abstract within this Model
+    */
+
+	function createSphere(radius, segments, color) {
     	return new THREE.Mesh(
     		new THREE.SphereGeometry(radius, segments, segments),
     		new THREE.MeshBasicMaterial(
     			{
-    				color: '#ed4c51',
+    				color: color,
     				wireframe: true
     			}
     		)
@@ -31,11 +36,11 @@ var Models = (function(){
 
         return mesh;
     }
-    function createRings(radius, segments) {
+    function createRings(radius, segments, color) {
     	return 	new THREE.Mesh(new THREE.XRingGeometry(1.2 * radius, 2 * radius, 2 * segments, 5, 0, Math.PI * 2),
     			new THREE.MeshBasicMaterial(
     				{	
-    					color: '#f8de5c',
+    					color: color,
     					wireframe: false,
     					side: THREE.DoubleSide, transparent: true, opacity: 0.9
     				}
@@ -43,19 +48,100 @@ var Models = (function(){
     		);
     }
 
+    /*
+    * Space / Galaxy Objects
+    * Planets, Orbit with Objects, Cube
+    */
+
+    //radius, segments, color, ringColor
+    var Planet = function(props, rotationSphere, rotationRing, scale){
+       this.create(props, rotationSphere, rotationRing, scale);
+    }
+
+    var Planet = function(props, rotationScalar){
+        var rotation = new THREE.Euler(rotationScalar, rotationScalar, rotationScalar);
+        var vector   = new THREE.Vector3(1,1,1);
+        this.create(props, rotation, rotation, vector);
+    }
+
+    Planet.prototype.create = function(props, rotationSphere, rotationRing, scale){
+
+        this.radius             = props.radius;
+        this.segments           = props.segments;
+        this.color              = props.color;
+        this.ringColor          = props.ringColor;
+
+        this.obj                = createSphere(this.radius, this.segments, this.color);
+        this.obj.rotation       = rotationSphere;
+        this.obj.position.setZ(2);
+
+        this.rings              = createRings(this.radius, this.segments, this.ringColor);
+        this.rings.rotation.x   = rotationRing.x;
+        this.rings.rotation.y   = rotationRing.y;
+        this.rings.rotation.z   = rotationRing.z;
+
+        this.rings.scale.x      = scale.x;
+        this.rings.scale.y      = scale.y;
+        this.rings.scale.z      = scale.z;
+
+        this.obj.add(this.rings);   
+    }
+
+    Planet.prototype.update = function(scene, segments, amp, bass, centroid){
+
+        var scaleFactor         = 1 + bass / 200;
+        var rotationFactor      = amp / 2560;
+
+        this.rings.scale.x      = scaleFactor;
+        this.rings.scale.z      = scaleFactor;
+        
+        this.rings.rotation.x   += rotationFactor * 2;
+        this.rings.rotation.y   += rotationFactor * 3;
+
+        this.obj.rotation.x     += rotationFactor * 2;
+        this.obj.rotation.y     += rotationFactor * 3;
+    }
+
+    Planet.prototype.changeSegments = function(scene, segments){
+        if(segments != this.segments){
+            this.segments = segments;
+            
+            var rotationSphere = this.obj.rotation;
+            var rotationRing = this.rings.rotation;
+            var tempScale = this.rings.scale;
+
+            scene.remove(this.obj);
+
+            this.create({
+                radius:     this.radius,
+                segments:   segments,
+                color:      this.color,
+                ringColor:  this.ringColor
+
+            }, rotationSphere, rotationRing, tempScale);
+
+            scene.add(this.obj);
+        }
+    }
+
     var Orbit = function(radius, segs, color, hasNoise){
 
-        this.radius = radius;
-        this.segments = segs;
-        this.color = color;
-        this.orbitingObjects = [];
-        this.orbitStagger = 10;
+        this.radius             = radius;
+        this.segments           = segs;
+        this.color              = color;
+        this.orbitingObjects    = [];
+        this.orbitStagger       = 10;
 
-        this.material = new THREE.LineBasicMaterial( { color: this.color, transparent: true, opacity: 0.2 } );
-        this.geometry = new THREE.CircleGeometry( this.radius, this.segments );
+        this.material           = new THREE.LineBasicMaterial({
+                                        color: this.color,
+                                        transparent: true,
+                                        opacity: 0.2
+                                    });
+        this.geometry           = new THREE.CircleGeometry( this.radius, this.segments );
+
 
         this.geometry.verticesNeedUpdate = true;
-        this.geometry.dynamic = true;
+        this.geometry.dynamic            = true;
         this.geometry.vertices.shift();
 
         this.obj = new THREE.Line( this.geometry, this.material );
@@ -84,7 +170,7 @@ var Models = (function(){
         this.obj.add(orbitingObj.obj);
     }
 
-    Orbit.prototype.update = function(afterFirstRender, amp, bass, centroid, cube, cube2){
+    Orbit.prototype.update = function(afterFirstRender, amp, bass, centroid){
         if (afterFirstRender)
             this.obj.geometry.verticesNeedUpdate = true;
 
@@ -129,7 +215,7 @@ var Models = (function(){
         this.obj.rotation.x += rotationFactor * 2;
         this.obj.rotation.y += rotationFactor * 3;
     }
-
+/*
     var CubeSystem = function(num, size){
         this.cubes = [];
         this.maxCubes = num;
@@ -151,11 +237,10 @@ var Models = (function(){
                 this.cubes.splice(i, 1);
             }
         }
-    };
+    };*/
 
     return {
-    	createSphere: createSphere,
-    	createRings: createRings,
+        planet: Planet,
     	cube: Cube,
         orbit: Orbit
     }
