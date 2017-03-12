@@ -93,9 +93,21 @@ function youtubeAudio(link){
     for(var i = 0; i < length; i++){
       values += this.frequencyData[i];
     }
-    average = values/length;
+    average = values / length;
     return average;
   };
+
+  this.getTreble = function(){
+    var freqPerBin = this.audioCtx.sampleRate / this.analyser.fftSize;
+    var start = Math.floor(3000 / freqPerBin);
+    var values = 0;
+    var average;
+    for(var i = start; i < this.frequencyData.length; i++){
+      values += this.frequencyData[i];
+    }
+    average = values / (this.frequencyData.length - start);
+    return average;
+  }
 
   this.getAmplitude = function(){
     var values = 0;
