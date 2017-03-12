@@ -87,7 +87,7 @@ var Models = (function(){
         this.obj.add(this.rings);   
     }
 
-    Planet.prototype.update = function(scene, segments, amp, bass, centroid){
+    Planet.prototype.update = function(amp, bass, centroid){
 
         var scaleFactor         = 1 + bass / 200;
         var rotationFactor      = amp / 2560;
@@ -124,29 +124,38 @@ var Models = (function(){
         }
     }
 
-    var Orbit = function(radius, segs, color, hasNoise){
+    //radius, segs, color
+    var Orbit = function(props, hasNoise){
 
-        this.radius             = radius;
-        this.segments           = segs;
-        this.color              = color;
+        this.radius             = props.radius;
+        this.segments           = props.segments;
+        this.color              = props.color;        
+        this.spacing            = props.spacing;
+        this.speed              = props.speed;
+        this.dir                = 1;
+        this.stopped            = 1;
+        this.hasNoise           = hasNoise;
+
         this.orbitingObjects    = [];
-        this.orbitStagger       = 10;
 
         this.material           = new THREE.LineBasicMaterial({
                                         color: this.color,
                                         transparent: true,
-                                        opacity: 0.2
+                                        opacity: 0
                                     });
-        this.geometry           = new THREE.CircleGeometry( this.radius, this.segments );
+        this.geometry           = new THREE.CircleGeometry(this.radius, this.segments);
 
 
         this.geometry.verticesNeedUpdate = true;
         this.geometry.dynamic            = true;
         this.geometry.vertices.shift();
 
-        this.obj = new THREE.Line( this.geometry, this.material );
+        this.obj                = new THREE.Line(this.geometry, this.material);
+        this.obj.rotation.x     = props.rotation;
+        this.orbitIndex         = 0;
 
-        if(hasNoise)
+
+        if(this.hasNoise)
             this.addNoise();
 
     }
@@ -161,8 +170,6 @@ var Models = (function(){
             avg -= this.noiseForPath[i]*1.0/this.rollwindow;
             return avg;
         });
-
-        this.orbitIndex = 0;
     }
 
     Orbit.prototype.add = function(orbitingObj){
@@ -171,24 +178,45 @@ var Models = (function(){
     }
 
     Orbit.prototype.update = function(afterFirstRender, amp, bass, centroid){
+
         if (afterFirstRender)
             this.obj.geometry.verticesNeedUpdate = true;
 
-        for (var i = 0; i < this.smoothnoise.length; i++) {
-            this.obj.geometry.vertices[i].setZ(this.smoothnoise[i] * amp / 100);
-            //orbitPath.geometry.vertices[i].setX(smoothnoise[i] * amp / 100);
-            //orbitPath.geometry.vertices[i].setY(smoothnoise[i] * amp / 100);
+        if(this.hasNoise)
+        {
+            for (var i = 0; i < this.smoothnoise.length; i++) {
+                this.obj.geometry.vertices[i].setZ(this.smoothnoise[i] * amp / 100);
+                //orbitPath.geometry.vertices[i].setX(smoothnoise[i] * amp / 100);
+                //orbitPath.geometry.vertices[i].setY(smoothnoise[i] * amp / 100);
+            }
         }
 
-        this.orbitIndex = (this.orbitIndex + 1) % this.geometry.vertices.length;
-        var tempIndex = this.orbitIndex;
+        if(bass > 240 || bass < 100)
+            this.dir *= -1;
+
+        this.stopped = bass < 100 ? 0 : 1;
+
+        this.orbitIndex = (this.orbitIndex + this.speed * this.dir * this.stopped) % this.geometry.vertices.length;
+        var tempIndex = this.orbitIndex > 0 ? this.orbitIndex : this.orbitIndex + this.geometry.vertices.length;
         
         for(var i = 0; i < this.orbitingObjects.length; i++)
         {
+            var curObj = this.orbitingObjects[i];
+
+            tempIndex %= this.geometry.vertices.length;
             var newpos = this.geometry.vertices[tempIndex];
-            this.orbitingObjects[i].obj.position.set(newpos.x, newpos.y, newpos.z);
-            tempIndex = (tempIndex + this.orbitStagger) % this.geometry.vertices.length;
+
+            curObj.obj.position.set(newpos.x, newpos.y, newpos.z);
+            tempIndex = (tempIndex + this.spacing) % this.geometry.vertices.length;
+            tempIndex = tempIndex > 0 ? tempIndex : (tempIndex + this.geometry.vertices.length);
+            
+            curObj.update(amp, bass, centroid);
         }
+
+        var rotationFactor      = amp / 25600;
+        
+        this.obj.rotation.x   += rotationFactor * 2;
+        this.obj.rotation.y   += rotationFactor * 3;
     }
 
     var Cube = function(length, color){
@@ -205,15 +233,15 @@ var Models = (function(){
     }
 
     Cube.prototype.update = function(amp, bass, centroid){
-        var scaleFactor = 1 + bass/200;
+        var scaleFactor = 1 + bass / (100 + Math.random() * 100);
         var rotationFactor = amp / 2560;
 
         this.obj.scale.x = scaleFactor;
         this.obj.scale.y = scaleFactor;
         this.obj.scale.z = scaleFactor;
 
-        this.obj.rotation.x += rotationFactor * 2;
-        this.obj.rotation.y += rotationFactor * 3;
+        this.obj.rotation.x += rotationFactor * 1;
+        this.obj.rotation.y += rotationFactor * 2;
     }
 /*
     var CubeSystem = function(num, size){

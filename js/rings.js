@@ -1,5 +1,6 @@
 
-var RingAnimator = (function() {
+var GalaxyAnimator = (function() {
+
     var webglEl = document.getElementById('webgl');
 
     THREE.ImageUtils.crossOrigin = '';
@@ -65,15 +66,20 @@ var RingAnimator = (function() {
 
         scene.add(planet.obj);
 
-        cube = new Models.cube(0.1, '#62c2bc');
-        cube2 = new Models.cube(0.4, '#62c2bc');
-        cube3 = new Models.cube(0.2, '#62c2bc');
+        orbitPath = new Models.orbit({
+                        radius: 4,
+                        segments: 500,
+                        color: '#ffffff',
+                        spacing: 22,
+                        rotation: 0,
+                        speed: 2       //must be an integer value
+                    }, false);
 
-        orbitPath = new Models.orbit(4, 256, 0xffffff, true);
-
-        orbitPath.add(cube);
-        orbitPath.add(cube2);
-        orbitPath.add(cube3);
+        for(var i = 0; i < 22; i++)
+        {
+            var cube = new Models.cube(0.1 * Math.random(), '#62c2bc');
+            orbitPath.add(cube);
+        }
 
         scene.add(orbitPath.obj);
     }
@@ -89,8 +95,7 @@ var RingAnimator = (function() {
         handlePeak(bass, null);
 
         orbitPath.update(afterFirstRender, amp, bass, centroid);
-        planet.update(scene, segmentsArr[curSegmentIndex], amp, bass, centroid);
-        cube.update(amp, bass, centroid);
+        planet.update(amp, bass, centroid);
 
         requestAnimationFrame(function(micIn){
             render(micIn);
@@ -144,22 +149,5 @@ var RingAnimator = (function() {
     });
 
 }());
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

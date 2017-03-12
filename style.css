@@ -75,6 +75,7 @@ canvas {
 
 .selection{
 	position: absolute;
+	box-sizing: border-box;
 	z-index: 99;
 	top: 0;
 	width: 100%;

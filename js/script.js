@@ -23,8 +23,8 @@ function setup(){
   mic = new youtubeAudio(window.location.href.replace(/.*\//g, "youtube.com/"));
 	mic.play();
 
-	if(RingAnimator.checkCompatible())
-		RingAnimator.init(mic);
+	if(GalaxyAnimator.checkCompatible())
+		GalaxyAnimator.init(mic);
 
 }
 
