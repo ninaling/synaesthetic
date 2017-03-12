@@ -12,7 +12,7 @@ var RingAnimator = (function() {
         curSegment = segmentsArr.length - 1,
         rotation = 3;
 
-    var hasOrbit = false;
+    var hasOrbit = true;
     var scene, camera, renderer, isPlaying;
     var orbitPath, orbitIndex, noiseForPath, rollwindow, avg;
     var sphere, rings;
@@ -32,20 +32,12 @@ var RingAnimator = (function() {
         return true;
     }
 
-    var cube;
-
     function init(micIn){
 
         initScene();
-        initRingedPlanet(hasOrbit, segmentsArr[curSegment], new THREE.Euler(rotation, rotation, rotation), new THREE.Euler(rotation, rotation, rotation), new THREE.Vector3(1,1,1));
+        initRingedPlanet(segmentsArr[curSegment], new THREE.Euler(rotation, rotation, rotation), new THREE.Euler(rotation, rotation, rotation), new THREE.Vector3(1,1,1));
 
-     //   cube = new Models.cube(1, '#62c2bc');
-     //   initOrbitPath();
-     //   orbitPath.add(cube.obj);
-       // scene.add(orbitPath);
-
-     //   var cube = Models.createCube(1, '#fff');
-     //   scene.add(cube);
+        initOrbitingObjects();
 
         webglEl.appendChild(renderer.domElement);
         peakDone = false;
@@ -68,52 +60,25 @@ var RingAnimator = (function() {
         renderer.setClearColor( 0x000000, 0 ); // the default
     }
 
-    function initOrbitPath(){
-        orbitPath = (function createOrbitPath () {
-            var radius = 2,
-                segments = 256,
-                material = new THREE.LineBasicMaterial( { color: 0xffffff, transparent: true, opacity: 0.2 } ),
-                geometry = new THREE.CircleGeometry( radius, segments );
+    function initOrbitingObjects(){
+        cube = new Models.cube(0.1, '#62c2bc');
+        cube2 = new Models.cube(0.4, '#62c2bc');
+        cube3 = new Models.cube(0.2, '#62c2bc');
 
-            geometry.verticesNeedUpdate = true;
-            geometry.dynamic = true;
+        orbitPath = new Models.orbit(4, 256, 0xffffff, true);
 
-            // Remove center vertex
-            geometry.vertices.shift();
+        orbitPath.add(cube);
+        orbitPath.add(cube2);
+        orbitPath.add(cube3);
 
-            var orbitPath = new THREE.Line( geometry, material );
-
-            orbitPath.rotation.x = Math.PI/2;
-
-            scene.add(orbitPath);
-            return orbitPath;
-
-        })();
-
-        noiseForPath = orbitPath.geometry.vertices.map(() => Math.random());
-        rollwindow = 10;
-        avg = noiseForPath.slice(0,rollwindow).reduce((acc, val) => acc+val, 0)*1.0/rollwindow;
-        smoothnoise = noiseForPath.map((val, i) => {
-            avg += noiseForPath[(i+rollwindow)%noiseForPath.length]*1.0/rollwindow;
-            avg -= noiseForPath[i]*1.0/rollwindow;
-            return avg;
-        });
-
-        orbitIndex = 0;
-
+        scene.add(orbitPath.obj);
     }
 
-    function initRingedPlanet(hasOrbit, segments, rotationSphere, rotationRing, scale){
-        if(hasOrbit)
-            initOrbitPath();
-
+    function initRingedPlanet(segments, rotationSphere, rotationRing, scale){
         sphere = Models.createSphere(radius, segments);
         sphere.rotation = rotationSphere;
 
-        if(hasOrbit)
-            orbitPath.add(sphere);
-        else
-            scene.add(sphere);
+        scene.add(sphere);
         
         rings = Models.createRings(radius, segments);
         rings.rotation.x = rotationRing.x;
@@ -137,26 +102,11 @@ var RingAnimator = (function() {
         var amp = micIn.getAmplitude();
         var bass = micIn.getBass();
         var centroid = micIn.getCentroid();
-
-        if(hasOrbit){
-            if (afterFirstRender)
-                orbitPath.geometry.verticesNeedUpdate = true;
-
-            (function () {
-                if (typeof micIn != 'undefined' && micIn.analyser) {
-                    for (var i = 0; i < smoothnoise.length; i++) {
-                        //getBass()
-                        orbitPath.geometry.vertices[i].setZ(smoothnoise[i] * micIn.getAmplitude() / 100);
-                        //orbitPath.geometry.vertices[i].setX(smoothnoise[i] * micIn.getAmplitude() / 100);
-                        //orbitPath.geometry.vertices[i].setY(smoothnoise[i] * micIn.getAmplitude() / 100);
-                    }
-                }
-                orbitIndex = (orbitIndex+1) % orbitPath.geometry.vertices.length;
-                var newpos = orbitPath.geometry.vertices[orbitIndex];
-                sphere.position.set(newpos.x, newpos.y, newpos.z);
-            })();
+        
+        if(hasOrbit && typeof micIn != 'undefined' && micIn.analyser){
+            orbitPath.update(afterFirstRender, amp, bass, centroid, cube, cube2);
         }
-
+        
         //change segments
         if(bass > 240)
             peakDone = true;
@@ -191,7 +141,7 @@ var RingAnimator = (function() {
         sphere.rotation.x += rotationFactor * 2;
         sphere.rotation.y += rotationFactor * 3;
 
-      //  cube.update(amp, bass, centroid);
+        cube.update(amp, bass, centroid);
 
 
         requestAnimationFrame(function(micIn){
@@ -210,7 +160,7 @@ var RingAnimator = (function() {
             var tempScale = object.children[0].scale;
 
             scene.remove(object);
-            initRingedPlanet(false, segmentsArr[curSegment], rotationSphere, rotationRing, tempScale);
+            initRingedPlanet(segmentsArr[curSegment], rotationSphere, rotationRing, tempScale);
         }
     }
 

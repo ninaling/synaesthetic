@@ -1,6 +1,9 @@
 
 var Models = (function(){
 
+    var winWidth = window.innerWidth;
+    var winHeight = window.innerHeight;
+
 	function createSphere(radius, segments) {
     	return new THREE.Mesh(
     		new THREE.SphereGeometry(radius, segments, segments),
@@ -26,12 +29,6 @@ var Models = (function(){
             material
         )
 
-        //wireframe
-      /*  var geo = new THREE.WireframeGeometry( mesh.geometry );
-        var mat = new THREE.LineBasicMaterial( { color: '#fff', linewidth: 2 } );
-        var wireframe = new THREE.Line( geo, mat );
-        mesh.add( wireframe );*/
-
         return mesh;
     }
     function createRings(radius, segments) {
@@ -46,8 +43,66 @@ var Models = (function(){
     		);
     }
 
-    function initCube(length, color){
-        return new Cube(length, color);
+    var Orbit = function(radius, segs, color, hasNoise){
+
+        this.radius = radius;
+        this.segments = segs;
+        this.color = color;
+        this.orbitingObjects = [];
+        this.orbitStagger = 10;
+
+        this.material = new THREE.LineBasicMaterial( { color: this.color, transparent: true, opacity: 0.2 } );
+        this.geometry = new THREE.CircleGeometry( this.radius, this.segments );
+
+        this.geometry.verticesNeedUpdate = true;
+        this.geometry.dynamic = true;
+        this.geometry.vertices.shift();
+
+        this.obj = new THREE.Line( this.geometry, this.material );
+
+        if(hasNoise)
+            this.addNoise();
+
+    }
+
+    Orbit.prototype.addNoise = function(){
+        this.noiseForPath = this.geometry.vertices.map(() => Math.random());
+        this.rollwindow = 10;
+
+        var avg = this.noiseForPath.slice(0,this.rollwindow).reduce((acc, val) => acc+val, 0)*1.0/this.rollwindow;
+        this.smoothnoise = this.noiseForPath.map((val, i) => {
+            avg += this.noiseForPath[(i+this.rollwindow) % this.noiseForPath.length]*1.0/this.rollwindow;
+            avg -= this.noiseForPath[i]*1.0/this.rollwindow;
+            return avg;
+        });
+
+        this.orbitIndex = 0;
+    }
+
+    Orbit.prototype.add = function(orbitingObj){
+        this.orbitingObjects.push(orbitingObj);
+        this.obj.add(orbitingObj.obj);
+    }
+
+    Orbit.prototype.update = function(afterFirstRender, amp, bass, centroid, cube, cube2){
+        if (afterFirstRender)
+            this.obj.geometry.verticesNeedUpdate = true;
+
+        for (var i = 0; i < this.smoothnoise.length; i++) {
+            this.obj.geometry.vertices[i].setZ(this.smoothnoise[i] * amp / 100);
+            //orbitPath.geometry.vertices[i].setX(smoothnoise[i] * amp / 100);
+            //orbitPath.geometry.vertices[i].setY(smoothnoise[i] * amp / 100);
+        }
+
+        this.orbitIndex = (this.orbitIndex + 1) % this.geometry.vertices.length;
+        var tempIndex = this.orbitIndex;
+        
+        for(var i = 0; i < this.orbitingObjects.length; i++)
+        {
+            var newpos = this.geometry.vertices[tempIndex];
+            this.orbitingObjects[i].obj.position.set(newpos.x, newpos.y, newpos.z);
+            tempIndex = (tempIndex + this.orbitStagger) % this.geometry.vertices.length;
+        }
     }
 
     var Cube = function(length, color){
@@ -58,18 +113,8 @@ var Models = (function(){
         this.obj.position.x = 0;
         this.obj.position.y = 0;
     }
-
-    var winWidth = window.innerWidth;
-    var winHeight = window.innerHeight;
     
     Cube.prototype.isDead = function(){
-       /* var length = this.length;
-
-        return  this.obj.position.x < -length ||
-                this.obj.position.y < -length ||
-                this.obj.position.x > winWidth + length ||
-                this.obj.position.y > winHeight + length;*/
-
         return false;
     }
 
@@ -111,7 +156,8 @@ var Models = (function(){
     return {
     	createSphere: createSphere,
     	createRings: createRings,
-    	cube: Cube
+    	cube: Cube,
+        orbit: Orbit
     }
 
 
