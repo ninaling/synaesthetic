@@ -15,6 +15,8 @@ var fft;
 var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
+var throttle = 0;
+
 function setup(){
 	c = createCanvas(winWidth, winHeight);
 	c.parent("background-stars");
@@ -45,10 +47,13 @@ function draw() {
 
 	background(darkPurple);
 	system.run(props);
-    debounce(function() {
-        applyColorFilterBackground(bassLevel);
-    }, 5000);
-
+    if(throttle > 0){//Don't activate function if it recently activated
+        throttle--;
+    } else {
+        if(applyColorFilterBackground(bassLevel)){ //if it returns true, set a throttle
+            throttle = 500;       
+        }
+    }
     //applyColorFilterStars(bassLevel);
     //applyColorFilterBackground(bassLevel);
 	//setTimeout(function(){

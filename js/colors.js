@@ -29,9 +29,13 @@ var applyColorFilterBackground = (function (){
 
         style += "hue-rotate(" + 255 + "deg) ";
         style += "saturate(" + sat + ")";
+    
+        backgroundStars.style.filter = style;
+        return true;
         //RETURN TRUE FALSE    
       }
       backgroundStars.style.filter = style;
+      return false; 
     };
 })();
 
