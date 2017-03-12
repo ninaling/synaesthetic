@@ -48,10 +48,11 @@ function draw() {
 	background(darkPurple);
 	system.run(props);
     if(throttle > 0){//Don't activate function if it recently activated
+        console.log(throttle);
         throttle--;
     } else {
         if(applyColorFilterBackground(bassLevel)){ //if it returns true, set a throttle
-            throttle = 500;       
+            throttle = 200;       
         }
     }
     //applyColorFilterStars(bassLevel);

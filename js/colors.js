@@ -32,7 +32,6 @@ var applyColorFilterBackground = (function (){
     
         backgroundStars.style.filter = style;
         return true;
-        //RETURN TRUE FALSE    
       }
       backgroundStars.style.filter = style;
       return false; 
