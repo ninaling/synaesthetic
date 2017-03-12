@@ -20,14 +20,16 @@ var applyColorFilterBackground = (function (){
   var sat = 0;
   return function (bassLevel) {
       var style = "";
-      if (bassLevel > 200) {
+      if (bassLevel > 240) {
+        console.log("sat = " + sat);
         sat++;
+        if(sat > 10)
+            sat = 0;
         var i = Math.floor(Math.random() * colorFilters.length);
-        console.log(i);
+        console.log("i = " + i);
         
-        console.log('running background');
 
-        style += "hue-rotate(" + 255 + "deg) ";
+        style += "hue-rotate(" + colorFilters[i].hueRotate + "deg) ";
         style += "saturate(" + sat + ")";
     
         backgroundStars.style.filter = style;

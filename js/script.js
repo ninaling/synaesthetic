@@ -16,6 +16,10 @@ var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
 var throttle = 0;
+var triggerBack = true;
+var triggerBackCount = 5;
+var triggerStars = true;
+var triggerStarsCount = 5;
 
 function setup(){
 	c = createCanvas(winWidth, winHeight);
@@ -47,14 +51,17 @@ function draw() {
 
 	background(darkPurple);
 	system.run(props);
-    if(throttle > 0){//Don't activate function if it recently activated
-        console.log(throttle);
-        throttle--;
-    } else {
-        if(applyColorFilterBackground(bassLevel)){ //if it returns true, set a throttle
-            throttle = 200;       
+    if(triggerBack == true && applyColorFilterBackground(bassLevel)){
+        triggerBack = false;
+        triggerBackCount = 30;
+    } else if (triggerBack == false) {
+        triggerBackCount--;
+        if(triggerBackCount == 0){
+            applyColorFilterBackground(0);
+            triggerBack = true;
         }
     }
+
     //applyColorFilterStars(bassLevel);
     //applyColorFilterBackground(bassLevel);
 	//setTimeout(function(){
