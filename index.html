@@ -1,1 +1,32 @@
-hello
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="/style.css" />
+	<title>Synaesthetic</title>
+</head>
+
+<body>
+	<div class="selection">
+		<div class="search-bar">
+			<form action="#">
+				<input class="search-input" type="text" name="search" placeholder="search for a song" autocomplete="off" />
+				<button class="btn search-btn" onclick="smartsearch = true">SEARCH</button>
+				<!--<button class="btn smart-btn" onclick="smartsearch = true">SUPER SMART SEARCH (with machine learning)</button>-->
+			</form>
+			<button class="btn cancel-btn">CANCEL</button>
+		</div>
+		<div id="results"></div>
+	</div>
+
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="https://apis.google.com/js/api.js"></script>
+	<script type="text/javascript" src="/js/youtubeSearch.js"></script>
+	<script src="https://apis.google.com/js/client.js?onload=init"></script>
+
+	<!--<script type="text/javascript" src="/js/rings.js"></script>
+	<script type="text/javascript" src="/js/script.js"></script>-->
+
+</body>
+</html>

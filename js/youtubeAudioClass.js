@@ -22,11 +22,9 @@ function youtubeAudio(link){
   
 
   function toggleSong(isMouseEvent, event) {
-
     if(isMouseEvent || event.keyCode == 32)
     {
       var player = document.getElementById("audioPlayer");
-      var button = document.getElementById('play-pause-button');
       if(!player.paused){
         player.pause();
       }
@@ -35,6 +33,20 @@ function youtubeAudio(link){
       }
     }
   };
+
+/*these break after the song finishes and restarts*/
+  this.forward = function(){
+    var player = document.getElementById("audioPlayer");
+    console.log("b",player.currentTime);
+    player.currentTime += 5;
+    console.log("a",player.currentTime);
+  }
+  this.back = function(){
+    var player = document.getElementById("audioPlayer");
+    console.log("b",player.currentTime);
+    player.currentTime -= 5;
+    console.log("a",player.currentTime);
+  }
 
   document.getElementById('button-container').appendChild(this.button);
 
@@ -50,10 +62,12 @@ function youtubeAudio(link){
     var button = document.getElementById('play-pause-button');
     button.setAttribute('src', '../assets/pause-icon.svg');
   };
+/*
   this.audio.onended = function(){
-      alert("The audio has ended");
+    var player = document.getElementById("audioPlayer");
+    player.currentTime = 0.1;
   }
-
+*/
 
   this.delay = this.audioCtx.createDelay(5.0);
   this.delay.delayTime.value = 0.07; //adjustable delay! (value is in seconds)
@@ -122,9 +136,10 @@ function youtubeAudio(link){
     average = values / length;
     return average;
   };
-
+  /*
   this.isDone = function(){
     if(this.getAmplitude() == 0 && this.getBass() == 0 && this.getCentroid() == NaN)
       alert('hi');
   }
+  */
 }
