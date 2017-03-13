@@ -3,8 +3,15 @@
 	padding: 0;
 }
 
+html {
+	width: 100%;
+	height: 100%;
+}
+
 body{
 	background-color: #270227;
+	width: 100%;
+	height: 100%;
 }
 /*body #background-stars {
 	-webkit-filter: hue-rotate(300deg) saturate(8);
@@ -73,21 +80,30 @@ canvas {
 
 /*===============YT SELECTION=============*/
 
-.selection{
+.fuck{
 	position: absolute;
-	box-sizing: border-box;
 	z-index: 99;
-	top: 0;
+	display:flex;
+	justify-content:center;
+	align-items:center;
 	width: 100%;
+	height: 100%;
+}
+
+.selection{
+	width: 70%;
 	padding: 20px;
+
 }
 
 .search-bar{
 	height: 70px;
+	display: flex;
+	flex-flow: row;
 }
 
 .search-input{
-	float: left;
+	flex: 1 1 auto;
 	overflow: hidden;
 	border: none;
     background: none;
@@ -107,7 +123,7 @@ canvas {
 }
 
 .btn{
-	float: left;
+	flex: 1 0 auto;
 	height: 50px;
 	width: 100px;
     border: 1px solid white;
