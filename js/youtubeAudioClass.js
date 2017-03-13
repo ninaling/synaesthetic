@@ -34,6 +34,12 @@ function youtubeAudio(link){
   };
 
 /*these break after the song finishes and restarts*/
+this.jumpTo = function(time){
+  var player = document.getElementById("audioPlayer");
+    console.log("b",player.currentTime);
+    player.currentTime = time;
+    console.log("a",player.currentTime);
+}
   this.forward = function(){
     var player = document.getElementById("audioPlayer");
     console.log("b",player.currentTime);
@@ -61,12 +67,43 @@ function youtubeAudio(link){
     var button = document.getElementById('play-pause-button');
     button.setAttribute('src', '../assets/pause-icon.svg');
   };
-/*
-  this.audio.onended = function(){
-    var player = document.getElementById("audioPlayer");
-    player.currentTime = 0.1;
-  }
-*/
+
+  this.onEndedCallback = function(){
+    console.log(this);
+    this.player.remove();
+    this.player = new window.Audio(link);
+    this.player.preload = 'metadata';
+    this.player.setAttribute("id", "audioPlayer");
+    this.player.controls = false;
+    document.getElementById('audio-container').appendChild(this.player);
+
+    this.audioCtx = new AudioContext();
+    this.audio = document.getElementById('audioPlayer');
+    this.audioSrc = this.audioCtx.createMediaElementSource(this.audio);
+
+    this.delay = this.audioCtx.createDelay(5.0);
+    this.delay.delayTime.value = 0.07; //adjustable delay! (value is in seconds)
+
+    this.analyser = this.audioCtx.createAnalyser();
+    this.audioSrc.connect(this.analyser);
+    this.audioSrc.connect(this.delay);
+    this.delay.connect(this.audioCtx.destination);
+
+    this.frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
+    
+    this.audio.onpause = function() {
+      var button = document.getElementById('play-pause-button');
+      button.setAttribute('src', '../assets/play-icon.svg');
+    };
+    
+    this.audio.onplay = function(){
+      var button = document.getElementById('play-pause-button');
+      button.setAttribute('src', '../assets/pause-icon.svg');
+    };
+    this.audio.onended = this.onEndedCallback;
+  }.bind(this);
+
+  this.audio.onended = this.onEndedCallback;
 
   this.delay = this.audioCtx.createDelay(5.0);
   this.delay.delayTime.value = 0.07; //adjustable delay! (value is in seconds)
