@@ -21,13 +21,10 @@ var applyColorFilterBackground = (function (){
   return function (bassLevel) {
       var style = "";
       if (bassLevel > 240) {
-        console.log("sat = " + sat);
-        sat+=3;
+        sat += 3;
         if(sat > 12)
             sat = 0;
-        var i = Math.floor(Math.random() * colorFilters.length);
-        console.log("i = " + i);
-        
+        var i = Math.floor(Math.random() * colorFilters.length);        
 
         style += "hue-rotate(" + colorFilters[i].hueRotate + "deg) ";
         style += "saturate(" + sat + ")";
@@ -50,8 +47,6 @@ var applyColorFilterStars = (function (){
         if(sat > 10)
             sat = 0;
         var i = Math.floor(Math.random() * colorFilters.length);
-
-        console.log("i = " + i); 
 
         style += "hue-rotate(" + colorFilters[i].hueRotate + "deg) ";
         style += "saturate(" + sat + ")";

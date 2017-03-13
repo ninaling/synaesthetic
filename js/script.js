@@ -39,24 +39,33 @@ function draw() {
 
 	var spectrum = mic.FFT();
 	var bassLevel = mic.getBass();
+	var trebleLevel = mic.getTreble();
 
 	var bassLevelMultiplier = bassLevel > 200
 								? (bassLevel - 95)/8
 								: bassLevel == 0
 									? 0
 									: 1;
+
+	var trebleLevelMultiplier = trebleLevel > 60
+								? (trebleLevel - 20)/4
+								: trebleLevel == 0
+									? 0
+									: 1;
+
 	var props = {
-		bassLevelMultiplier: bassLevelMultiplier
+		bassLevelMultiplier: bassLevelMultiplier,
+		trebleLevelMultiplier: trebleLevelMultiplier
 	};
 
 	background(darkPurple);
 	system.run(props);
 
     //Triggers the background color change on base
-    if(triggerBack == true && applyColorFilterBackground(bassLevel)){
+    if(triggerBack && applyColorFilterBackground(bassLevel)){
         triggerBack = false;
         triggerBackCount = 30;
-    } else if (triggerBack == false) {
+    } else if (!triggerBack) {
         triggerBackCount--;
         if(triggerBackCount == 0){
             applyColorFilterBackground(0);
@@ -65,13 +74,13 @@ function draw() {
     }
     
     //Triggers Star color change on base
-    if(triggerStars == true && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
+    if(triggerStars && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
         triggerStarsFlicker--;
         if(triggerStarsFlicker == 0){
             triggerStarsCount = 30;
             triggerStars == false;
         }
-    } else if (triggerStars == false){
+    } else if (!triggerStars){
         triggerStarsCount--;
         if(triggerStarsCount == 0){
             applyColorFilterStars(0);
@@ -88,46 +97,76 @@ function draw() {
     system.addParticle();
 }
 
+var Color = function(r,g,b){
+	this.r = r;
+	this.g = g;
+	this.b = b;
+	this.opacity = 1;
+}
+
+Color.prototype.setOpacity = function(opacity){
+	this.opacity = opacity;
+}
+
+Color.prototype.toString = function(){
+	return 'rgba(' + this.r + ', ' + this.g + ', ' + this.b + ', ' + this.opacity + ')';
+}
+
 var Particle = function(radius){
 
 	//max properties
 	this.velocityMax = 10;
-	this.radiusMax = radius;
+	this.radiusMax 	 = radius;
 
 	//random generation
 	this.generateRandom();
 
 	//derived properties from random
-	this.velocity = createVector(
-						(this.randomX * this.velocityMax * 1.4 - this.velocityMax * 0.85)/5,
-						(this.randomY * this.velocityMax * 1.4 - this.velocityMax * 0.85)/10 //divide by 3 to lessen y particles moving out of screen
-					);
+	this.velocity 	 = createVector(
+							(this.randomX * this.velocityMax * 1.4 - this.velocityMax * 0.85)/5,
+							(this.randomY * this.velocityMax * 1.4 - this.velocityMax * 0.85)/10 //divide by 3 to lessen y particles moving out of screen
+						);
 
 	//random generation again so large particles aren't all in southeast direction
 	this.generateRandom();
 
-	this.position = createVector(winWidth/2, winHeight/2);
-	this.radius = this.radiusMax * (this.randomX + this.randomY) / 3.5;
-	this.opacity = (this.randomX + this.randomY) / 2.5;
+	this.position 	 = createVector(winWidth/2, winHeight/2);
+	this.radius 	 = this.radiusMax * (this.randomX + this.randomY) / 3.5;
+	this.opacity 	 = (this.randomX + this.randomY) / 2.5;
+	this.color.setOpacity(this.opacity);
 }
 
 Particle.prototype.generateRandom = function(){
-	this.randomX = random(1);
-	this.randomY = random(1);
+	this.randomX 	 = random(1);
+	this.randomY 	 = random(1);
+
+	var colors = [new Color(253, 102, 96), new Color(98, 194, 188)]
+	
+	if(Math.random() > 0.3)
+	{
+		this.type = 0;
+		this.color = colors[this.type];
+	}
+	else
+	{
+		this.type = 1;
+		this.color = colors[this.type];
+	}
 }
 
-Particle.prototype.run = function(bassLevelMultiplier){
-	this.update(bassLevelMultiplier);
+Particle.prototype.run = function(props){
+	var mult = this.type == 0 ? props.bassLevelMultiplier : props.trebleLevelMultiplier;
+	this.update(mult);
 	this.display();
 }
 
-Particle.prototype.update = function(bassLevelMultiplier){
-	var tempVector = this.velocity.copy().mult(bassLevelMultiplier);
+Particle.prototype.update = function(multiplier){
+	var tempVector = this.velocity.copy().mult(multiplier);
 	this.position.add(tempVector);
 }
 
 Particle.prototype.display = function(){
-	fill('rgba(253, 102, 96, ' + this.opacity + ')');
+	fill(this.color.toString());
 	strokeWeight(0);
 	ellipse(this.position.x, this.position.y, this.radius, this.radius);
 }
@@ -149,6 +188,7 @@ var ParticleSystem = function(maxNum, size) {
 };
 
 ParticleSystem.prototype.addParticle = function() {
+
 	if(this.particles.length < this.maxParticles)
 		this.particles.push(new Particle(this.particlesSize));
 };
@@ -157,7 +197,7 @@ ParticleSystem.prototype.run = function(props) {
 	for (var i = this.particles.length-1; i >= 0; i--) {
 
 		var p = this.particles[i];
-		p.run(props.bassLevelMultiplier);
+		p.run(props);
 
 		if (p.isDead()){
 			this.particles.splice(i, 1);
