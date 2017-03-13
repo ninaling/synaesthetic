@@ -15,6 +15,12 @@ var fft;
 var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
+var triggerBack = true;
+var triggerBackCount = 0;
+var triggerStars = true;
+var triggerStarsCount = 0;
+var triggerStarsFlicker = 5;
+
 function setup(){
 	c = createCanvas(winWidth, winHeight);
 	c.parent("background-stars");
@@ -45,8 +51,41 @@ function draw() {
 
 	background(darkPurple);
 	system.run(props);
-	applyColorFilter(bassLevel);
-	system.addParticle();
+
+    //Triggers the background color change on base
+    if(triggerBack == true && applyColorFilterBackground(bassLevel)){
+        triggerBack = false;
+        triggerBackCount = 30;
+    } else if (triggerBack == false) {
+        triggerBackCount--;
+        if(triggerBackCount == 0){
+            applyColorFilterBackground(0);
+            triggerBack = true;
+        }
+    }
+    
+    //Triggers Star color change on base
+    if(triggerStars == true && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
+        triggerStarsFlicker--;
+        if(triggerStarsFlicker == 0){
+            triggerStarsCount = 30;
+            triggerStars == false;
+        }
+    } else if (triggerStars == false){
+        triggerStarsCount--;
+        if(triggerStarsCount == 0){
+            applyColorFilterStars(0);
+            triggerStars = true;
+            triggerStarsFlicker = 5;
+        }
+    }
+    //applyColorFilterStars(bassLevel);
+    //applyColorFilterBackground(bassLevel);
+	//setTimeout(function(){
+    //    applyColorFilter(bassLevel);//Call every 5 seconds after being called 
+    //    console.log('setTimeout');
+    //}, 5000);
+    system.addParticle();
 }
 
 var Particle = function(radius){
