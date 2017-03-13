@@ -45,19 +45,22 @@ var applyColorFilterStars = (function (){
   return function (bassLevel) {
       var style = "";
 
-      if (bassLevel > 200) {
-        sat+=5;
+      if (bassLevel > 240) {
+        sat++;
+        if(sat > 10)
+            sat = 0;
         var i = Math.floor(Math.random() * colorFilters.length);
-        console.log(i);
-        
-        console.log('running stars');
+        console.log("i = " + i); 
 
         style += "hue-rotate(" + colorFilters[i].hueRotate + "deg) ";
         style += "saturate(" + sat + ")";
-        //Return FALSE/TRUE
+        webGLElement.style.filter = style;
+        return true;
       }
       webGLElement.style.filter = style;
-    };
+      return false;  
+ };
+
 
 })();
 

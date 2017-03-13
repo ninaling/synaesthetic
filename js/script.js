@@ -15,7 +15,6 @@ var fft;
 var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
-var throttle = 0;
 var triggerBack = true;
 var triggerBackCount = 5;
 var triggerStars = true;
@@ -61,7 +60,17 @@ function draw() {
             triggerBack = true;
         }
     }
-
+    
+    if(triggerStars == true && applyColorFilterStars(bassLevel)){
+        triggerStars = false;
+        triggerStarsCount = 30;
+    } else if (triggerStars == false){
+        triggerStarsCount--;
+        if(triggerStarsCount == 0){
+            applyColorFilterStars(0);
+            triggerStars = true;
+        }
+    }
     //applyColorFilterStars(bassLevel);
     //applyColorFilterBackground(bassLevel);
 	//setTimeout(function(){
@@ -154,23 +163,6 @@ function getMean(arr, n) {
   return sum / n;
 }
 
-
-//DEBOUNCE FUNCTION
-function debounce(func, wait, immediate){
-    var timeout;
-    return function(){
-        var context = this, args = arguments;
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout); 
-        timeout = setTimeout(function() {
-            timeout = null;
-            if(!immediate) {
-                func.apply(context, args);
-            }
-        }, wait);
-        if (callNow) func.apply(context, args);
-    };
-};
 
 // var player;
 // var fftbins;
