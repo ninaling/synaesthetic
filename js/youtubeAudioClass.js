@@ -21,7 +21,9 @@ function youtubeAudio(link){
   });
 
   function toggleSong(isMouseEvent, event) {
-    if(isMouseEvent || event.keyCode == 32)
+
+    var hasFocus = $('.search-input').is(':focus');
+    if((isMouseEvent || event.keyCode == 32) && !hasFocus)
     {
       var player = document.getElementById("audioPlayer");
       if(!player.paused){
