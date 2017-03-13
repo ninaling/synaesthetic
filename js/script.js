@@ -72,7 +72,7 @@ function draw() {
             triggerBack = true;
         }
     }
-    
+
     //Triggers Star color change on base
     if(triggerStars && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
         triggerStarsFlicker--;
@@ -91,7 +91,7 @@ function draw() {
     //applyColorFilterStars(bassLevel);
     //applyColorFilterBackground(bassLevel);
 	//setTimeout(function(){
-    //    applyColorFilter(bassLevel);//Call every 5 seconds after being called 
+    //    applyColorFilter(bassLevel);//Call every 5 seconds after being called
     //    console.log('setTimeout');
     //}, 5000);
     system.addParticle();
@@ -122,9 +122,9 @@ var Particle = function(radius){
 	this.generateRandom();
 
 	//derived properties from random
-	this.velocity 	 = createVector(
-							(this.randomX * this.velocityMax * 1.4 - this.velocityMax * 0.85)/5,
-							(this.randomY * this.velocityMax * 1.4 - this.velocityMax * 0.85)/10 //divide by 3 to lessen y particles moving out of screen
+	this.velocity = createVector(
+							(this.randomX * this.velocityMax * 1.4 - this.velocityMax * 0.72)/5,
+							(this.randomY * this.velocityMax * 1.4 - this.velocityMax * 0.72)/8
 						);
 
 	//random generation again so large particles aren't all in southeast direction
@@ -141,7 +141,7 @@ Particle.prototype.generateRandom = function(){
 	this.randomY 	 = random(1);
 
 	var colors = [new Color(253, 102, 96), new Color(98, 194, 188)]
-	
+
 	if(Math.random() > 0.3)
 	{
 		this.type = 0;
