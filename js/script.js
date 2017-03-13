@@ -16,9 +16,10 @@ var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
 var triggerBack = true;
-var triggerBackCount = 5;
+var triggerBackCount = 0;
 var triggerStars = true;
-var triggerStarsCount = 5;
+var triggerStarsCount = 0;
+var triggerStarsFlicker = 5;
 
 function setup(){
 	c = createCanvas(winWidth, winHeight);
@@ -50,6 +51,8 @@ function draw() {
 
 	background(darkPurple);
 	system.run(props);
+
+    //Triggers the background color change on base
     if(triggerBack == true && applyColorFilterBackground(bassLevel)){
         triggerBack = false;
         triggerBackCount = 30;
@@ -61,14 +64,19 @@ function draw() {
         }
     }
     
-    if(triggerStars == true && applyColorFilterStars(bassLevel)){
-        triggerStars = false;
-        triggerStarsCount = 30;
+    //Triggers Star color change on base
+    if(triggerStars == true && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
+        triggerStarsFlicker--;
+        if(triggerStarsFlicker == 0){
+            triggerStarsCount = 30;
+            triggerStars == false;
+        }
     } else if (triggerStars == false){
         triggerStarsCount--;
         if(triggerStarsCount == 0){
             applyColorFilterStars(0);
             triggerStars = true;
+            triggerStarsFlicker = 5;
         }
     }
     //applyColorFilterStars(bassLevel);

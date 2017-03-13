@@ -22,8 +22,8 @@ var applyColorFilterBackground = (function (){
       var style = "";
       if (bassLevel > 240) {
         console.log("sat = " + sat);
-        sat++;
-        if(sat > 10)
+        sat+=3;
+        if(sat > 12)
             sat = 0;
         var i = Math.floor(Math.random() * colorFilters.length);
         console.log("i = " + i);
