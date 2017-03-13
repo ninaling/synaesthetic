@@ -16,10 +16,22 @@ body #webgl {
 	filter: hue-rotate(300deg) saturate(8);
 }*/
 
-#container {
+#container, #logo-container {
 	width: 100vw;
 	height: 100vh;
 	position: relative;
+}
+
+#logo-container {
+	display: -webkit-flex;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#logo-container video {
+	width: 70%;
 }
 
 button:focus,
