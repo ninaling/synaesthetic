@@ -42,7 +42,7 @@ var Models = (function(){
     				{	
     					color: color,
     					wireframe: false,
-    					side: THREE.DoubleSide, transparent: true, opacity: 0.9
+    					side: THREE.DoubleSide
     				}
     			)
     		);
