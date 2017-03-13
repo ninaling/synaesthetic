@@ -19,7 +19,6 @@ function youtubeAudio(link){
   document.addEventListener('keydown', function(e){
     toggleSong(false, e);
   });
-  
 
   function toggleSong(isMouseEvent, event) {
     if(isMouseEvent || event.keyCode == 32)
