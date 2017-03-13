@@ -161,11 +161,11 @@ var Models = (function(){
     }
 
     Orbit.prototype.addNoise = function(){
-        this.noiseForPath = this.geometry.vertices.map(() => Math.random());
+        this.noiseForPath = this.geometry.vertices.map(function(){ return Math.random();});
         this.rollwindow = 10;
 
-        var avg = this.noiseForPath.slice(0,this.rollwindow).reduce((acc, val) => acc+val, 0)*1.0/this.rollwindow;
-        this.smoothnoise = this.noiseForPath.map((val, i) => {
+        var avg = this.noiseForPath.slice(0,this.rollwindow).reduce(function(acc, val){ return acc+val;}, 0)*1.0/this.rollwindow;
+        this.smoothnoise = this.noiseForPath.map(function(val, i){
             avg += this.noiseForPath[(i+this.rollwindow) % this.noiseForPath.length]*1.0/this.rollwindow;
             avg -= this.noiseForPath[i]*1.0/this.rollwindow;
             return avg;
