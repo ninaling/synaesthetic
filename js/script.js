@@ -61,7 +61,7 @@ function draw() {
 	background(darkPurple);
 	system.run(props);
 
-	var invert = Math.floor(Math.random() * 10);
+	var invert = Math.floor(Math.random() * 7);
   //Triggers the background color change on base
 	if(triggerBack && applyColorFilterBackground(bassLevel)){
 		applyColorFilterInvert(bassLevel, invert); //all graphics including planet

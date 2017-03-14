@@ -6,12 +6,12 @@ var webGLElement = document.getElementById("webgl");
 
 function applyColorFilterInvert(bassLevel, invert) {
   if (bassLevel > 240 && invert == 0) {
-    allContent.style.filter = "invert(1)";
+    allContent.style.filter = "invert(1) hue-rotate(80deg)";
   }
 }
 
 function disableColorFilterInvert(){
-  allContent.style.filter = "invert(0)";
+  allContent.style.filter = "invert(0) hue-rotate(0deg)";
 }
 
 var applyColorFilterBackground = (function (){
