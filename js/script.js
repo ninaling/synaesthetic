@@ -30,6 +30,8 @@ function preload(){
 	            duration = convert_time(data.items[0].contentDetails.duration)
 	            mic = new youtubeAudio(ytLink, duration);
 				mic.play();
+				if(RingAnimator.checkCompatible())
+					RingAnimator.init(mic);
 				loop();
 	        }
 	    }
@@ -40,9 +42,6 @@ function setup(){
 	c = createCanvas(winWidth, winHeight);
 	c.parent("background-stars");
 	system = new ParticleSystem(400, 15);
-
-	if(RingAnimator.checkCompatible())
-		RingAnimator.init(mic);
 	noLoop();
 }
 
