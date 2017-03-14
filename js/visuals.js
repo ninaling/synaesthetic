@@ -8,16 +8,23 @@ var darkPurple = '#270227';
 var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
-var mic;
-var fft;
+var song, analyzer;
 
 var bassLevelArr = [0, 0, 0, 0, 0];
 var i = 0;
+
+function preload(){
+	soundFormats('ogg', 'mp3');
+	song = loadSound('/assets/Shivainn-Master-1.mp3');
+}
 
 function setup(){
 	c = createCanvas(winWidth, winHeight);
 	c.parent("background-stars");
 	system = new ParticleSystem(800, 10);
+	song.loop(); 
+	analyzer = new p5.Amplitude();
+	analyzer.setInput(song);
 }
 
 function draw() {
@@ -60,7 +67,8 @@ Particle.prototype.run = function(){
 }
 
 Particle.prototype.update = function(){
-	this.position.add(this.velocity);
+	var multiplier = analyzer.getLevel() * 10 + 1;
+	this.position.add(this.velocity.copy().mult(multiplier));
 }
 
 Particle.prototype.display = function(){
