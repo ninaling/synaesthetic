@@ -2,24 +2,24 @@ function tplawesome(e,t){res=e;for(var n=0;n<t.length;n++){res=res.replace(/\{\{
 
 $(function(){
 
-	$('input, .search-btn').focus(function() {
-		$('.search-input').addClass('focus');
-    	$('.content').addClass('unfocus');
-    	$('.cancel-btn').addClass('visible');
+    $('input, .search-btn').focus(function() {
+        $('.search-input').addClass('focus');
+        $('.content').addClass('unfocus');
+        $('.cancel-btn').addClass('visible');
     });
 
     $('.cancel-btn').on('click',function(){
-    	$('.search-input').removeClass('focus');
-    	$('.content').removeClass('unfocus');
-    	$('.cancel-btn').removeClass('visible');
-    	$('#results').html('');
-    	$('.search-input').val('');
+        $('.search-input').removeClass('focus');
+        $('.content').removeClass('unfocus');
+        $('.cancel-btn').removeClass('visible');
+        $('#results').html('');
+        $('.search-input').val('');
     })
 
-	$('form').on('submit', function(e){
-		e.preventDefault();
+    $('form').on('submit', function(e){
+        e.preventDefault();
 
-		var request = gapi.client.youtube.search.list({
+        var request = gapi.client.youtube.search.list({
             part: 'snippet',
             type: 'video',
             q: encodeURIComponent($('.search-input').val() + (smartsearch ? ' lyric video' : '')).replace(/%20/g, "+"),
@@ -27,7 +27,7 @@ $(function(){
             order: 'relevance'
        }); 
 
-		request.execute(function(response) {
+        request.execute(function(response) {
             var results = response.result;
 
             $('#results').html('');
@@ -35,13 +35,13 @@ $(function(){
             $.each(results.items, function(index, item) {
             $.get('tpl/item.html', function(data) {
                 $('#results').append(tplawesome(data, 
-                	[
-                		{
-                			'title': item.snippet.title,
-                			'videoid': item.id.videoId,
-                			'link': 'watch?v=' + item.id.videoId
-                		}
-                	]));
+                    [
+                        {
+                            'title': item.snippet.title,
+                            'videoid': item.id.videoId,
+                            'link': 'watch?v=' + item.id.videoId
+                        }
+                    ]));
                 });
             });
 
@@ -50,12 +50,12 @@ $(function(){
             }
 
        });
-	})
+    })
 });
 
 function init(){
-	gapi.client.setApiKey('AIzaSyA8Qk6dVeO2sGMH2cX5ujy5z6Xii3wTv5U');
-	gapi.client.load('youtube', 'v3', function(){
+    gapi.client.setApiKey('AIzaSyA8Qk6dVeO2sGMH2cX5ujy5z6Xii3wTv5U');
+    gapi.client.load('youtube', 'v3', function(){
 
-	})
+    })
 }

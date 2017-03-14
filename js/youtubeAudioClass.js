@@ -1,4 +1,4 @@
-function youtubeAudio(link){
+function youtubeAudio(link, duration){
   this.player = new window.Audio(link);
   this.player.preload = 'metadata';
   this.player.setAttribute("id", "audioPlayer");
@@ -11,6 +11,13 @@ function youtubeAudio(link){
   this.button.setAttribute('src', '../assets/play-icon.svg');
   this.button.setAttribute('id', 'play-pause-button');
   this.button.style.width = "35px";
+/*
+  this.slider = document.createElement("INPUT");
+  this.slider.setAttribute("type", "range");
+  this.slider.setAttribute("min", "0.1");
+  this.slider.setAttribute("max", ".99");
+  this.slider.setAttribute("value", "0");
+  */
 
   this.button.addEventListener('click', function(e){
     toggleSong(true, e);
@@ -34,8 +41,18 @@ function youtubeAudio(link){
       }
     }
   };
-
-/*these break after the song finishes and restarts*/
+  //jumps a % into song (e.g. seek(50) jumps to halfway into the song)
+  this.seek = function(percent){
+    if(this.currentTime() > 95) return;
+    var player = document.getElementById("audioPlayer");
+    player.currentTime = percent/100 * duration;
+  }
+  //returns current % into duration of song
+  this.currentTime = function(){
+    var player = document.getElementById("audioPlayer");
+    return (player.currentTime-0.07) / duration;
+  }
+/*
   this.forward = function(){
     var player = document.getElementById("audioPlayer");
     console.log("b",player.currentTime);
@@ -48,6 +65,7 @@ function youtubeAudio(link){
     player.currentTime -= 5;
     console.log("a",player.currentTime);
   }
+*/
 
   document.getElementById('button-container').appendChild(this.button);
 
@@ -63,12 +81,42 @@ function youtubeAudio(link){
     var button = document.getElementById('play-pause-button');
     button.setAttribute('src', '../assets/pause-icon.svg');
   };
-/*
-  this.audio.onended = function(){
-    var player = document.getElementById("audioPlayer");
-    player.currentTime = 0.1;
-  }
-*/
+
+  this.onEndedCallback = function(){
+    this.player.remove();
+    this.player = new window.Audio(link);
+    this.player.preload = 'metadata';
+    this.player.setAttribute("id", "audioPlayer");
+    this.player.controls = false;
+    document.getElementById('audio-container').appendChild(this.player);
+
+    this.audioCtx = new AudioContext();
+    this.audio = document.getElementById('audioPlayer');
+    this.audioSrc = this.audioCtx.createMediaElementSource(this.audio);
+
+    this.delay = this.audioCtx.createDelay(5.0);
+    this.delay.delayTime.value = 0.07; //adjustable delay! (value is in seconds)
+
+    this.analyser = this.audioCtx.createAnalyser();
+    this.audioSrc.connect(this.analyser);
+    this.audioSrc.connect(this.delay);
+    this.delay.connect(this.audioCtx.destination);
+
+    this.frequencyData = new Uint8Array(this.analyser.frequencyBinCount);
+    
+    this.audio.onpause = function() {
+      var button = document.getElementById('play-pause-button');
+      button.setAttribute('src', '../assets/play-icon.svg');
+    };
+    
+    this.audio.onplay = function(){
+      var button = document.getElementById('play-pause-button');
+      button.setAttribute('src', '../assets/pause-icon.svg');
+    };
+    this.audio.onended = this.onEndedCallback;
+  }.bind(this);
+
+  this.audio.onended = this.onEndedCallback;
 
   this.delay = this.audioCtx.createDelay(5.0);
   this.delay.delayTime.value = 0.07; //adjustable delay! (value is in seconds)
@@ -86,6 +134,7 @@ function youtubeAudio(link){
   };
 
   this.FFT = function(){
+
     this.analyser.getByteFrequencyData(this.frequencyData);
     return this.frequencyData;
   };
