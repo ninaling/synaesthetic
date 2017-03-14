@@ -255,12 +255,15 @@ var GalaxyModels = (function(){
             if((i == props.breakpoints.length) || (mic.bass < props.breakpoints[i]))
             {
                 this.speed = props.speeds[i];
-               /* if(this.curSpeedTier != i)
-                    this.switchDir();
-                else
-                    this.isSwitchingDir = false;*/
 
+                if(Math.random() < 0.2){
+                    if(this.curSpeedTier != i)
+                        this.switchDir();
+                    else
+                        this.isSwitchingDir = false;
+                }  
                 this.curSpeedTier = i;
+
                 break;
             }
         }

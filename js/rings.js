@@ -99,7 +99,7 @@ var GalaxyAnimator = (function() {
 
         orbitPath.update({
                             breakpoints: [160, 220],
-                            speeds: [1,3,5]
+                            speeds: [1,4,6]
 
                          }, mic, afterFirstRender);
 
