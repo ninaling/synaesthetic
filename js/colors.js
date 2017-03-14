@@ -7,7 +7,7 @@ var webGLElement = document.getElementById("webgl");
 function applyColorFilterInvert(bassLevel, invert) {
 
   if (bassLevel > 240 && invert == 0) {
-    allContent.style.filter = "invert(1) hue-rotate(80deg)";
+    allContent.style.filter = "invert(1) hue-rotate(0deg)";
   }
 }
 

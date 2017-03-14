@@ -64,7 +64,7 @@ function draw() {
 	background(darkPurple);
 	system.run(props);
 
-	var invert = 0;
+	var invert = Math.floor(Math.random() * 7);
     //colorizeBackground(bassLevel, invert);
     //colorizeStars(bassLevel, invert);
 
