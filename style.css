@@ -18,29 +18,33 @@ body{
 
 #logo-container {
 	overflow: hidden;
-	height: 200px;
-	width: 35%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100vh;
+	width: 100vw;
 	display: -webkit-flex;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	left: 50%;
-    top: 50%;
-    border: 1px solid #f8de5c;
-    background: #2c042d;
+}
 
-    -webkit-transform: translate(-50%,-50%);
-    		transform: translate(-50%,-50%);
-
-    -webkit-transition: all 1s ease;
-    		transition: all 1s ease;
+#logo-container .logo-link {
+	width: 35%;
 }
 
 #logo-container video {
-	width: 180%;
-	-webkit-transition: width 0.1s ease;
-			transition: width 0.1s ease;
+	width: 100%;
+}
+
+#logo-container .cl-link {
+	width: 150px;
+	margin-bottom: 20px;
+}
+
+#logo-container .cl-link #cl-logo {
+	width: 100%;
 }
 
 .logo-link{
@@ -51,30 +55,20 @@ body{
 	pointer-events: auto;
 }
 
-#cl-logo{
-	width: 100px;
-    position: absolute;
-    top: 50%;
-    margin-top: -150px;
-    left: 50%;
-    -webkit-transform: translateX(-50%);
-    		transform: translateX(-50%);
-}
-
 .suggestions{
-	top: 50%;
-    position: absolute;
-    z-index: 10000;
-    color: #fff;
-    margin-top: 150px;
-    left: 50%;
-    text-align: center;
-    font-family: sans-serif;
-    line-height: 25px;
-    font-size: 12px;
-    vertical-align: middle;
-    -webkit-transform: translateX(-50%);
-    		transform: translateX(-50%);
+  position: absolute;
+	bottom: 20px;
+  z-index: 10000;
+  color: #fff;
+  margin-top: 150px;
+  left: 50%;
+  text-align: center;
+  font-family: sans-serif;
+  line-height: 25px;
+  font-size: 12px;
+  vertical-align: middle;
+  -webkit-transform: translateX(-50%);
+  		transform: translateX(-50%);
 }
 
 .icon{
