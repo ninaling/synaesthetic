@@ -64,7 +64,7 @@ function draw() {
 	background(darkPurple);
 	system.run(props);
 
-	var invert = Math.floor(Math.random() * 7);
+	var invert = Math.floor(Math.random() * 10);
     //colorizeBackground(bassLevel, invert);
     //colorizeStars(bassLevel, invert);
 
@@ -76,13 +76,13 @@ function draw() {
 	} else if (!triggerBack) {
 		triggerBackCount--;
 		if(triggerBackCount == 0){
-		    applyColorFilterBackground(0);
+	    applyColorFilterBackground(0);
 			disableColorFilterInvert(); //all graphics including planet
-		    triggerBack = true;
+	    triggerBack = true;
 		}
 	}
 
-	if(triggerStars && applyColorFilterStars(bassLevel)){		
+	if(triggerStars && applyColorFilterStars(bassLevel)){
 		triggerStars = false;
 		triggerStarsCount = 30;
 	} else if (!triggerStars) {
