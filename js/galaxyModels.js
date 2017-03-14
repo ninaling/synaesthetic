@@ -1,4 +1,10 @@
 
+/*
+* GalaxyModels.js
+* A Three.JS wrapper for galaxy objects,
+* which update according to mic input
+*/
+
 var GalaxyModels = (function(){
 
     var winWidth = window.innerWidth;
