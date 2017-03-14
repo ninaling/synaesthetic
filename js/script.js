@@ -21,8 +21,8 @@ var triggerStars = true;
 var triggerStarsCount = 0;
 var triggerStarsFlicker = 5;
 
-var colorizeBackground = triggerWithThrottle(30, applyColorFilterBackground, applyColorFilterInvert, disableColorFilterInvert);
-var colorizeStars = triggerWithThrottle(30, applyColorFilterStars, null, null);
+//var colorizeBackground = triggerWithThrottle(30, applyColorFilterBackground, applyColorFilterInvert, disableColorFilterInvert);
+//var colorizeStars = triggerWithThrottle(30, applyColorFilterStars, null, null);
 
 function setup(){
 	c = createCanvas(winWidth, winHeight);
@@ -65,28 +65,37 @@ function draw() {
 	system.run(props);
 
 	var invert = 0;
-    colorizeBackground(bassLevel, invert);
-    colorizeStars(bassLevel, invert);
+    //colorizeBackground(bassLevel, invert);
+    //colorizeStars(bassLevel, invert);
 
-    //Triggers Star color change on base
-  /*  if(triggerStars && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
-        triggerStarsFlicker--;
-        if(triggerStarsFlicker == 0){
-            triggerStarsCount = 30;
-            triggerStars == false;
-        }
-    } else if (!triggerStars){
-        triggerStarsCount--;
-        if(triggerStarsCount == 0){
-            applyColorFilterStars(0);
-            triggerStars = true;
-            triggerStarsFlicker = 5;
-        }
-    }*/
+	//Triggers the background color change on base
+	if(triggerBack && applyColorFilterBackground(bassLevel)){
+		applyColorFilterInvert(bassLevel, invert); //all graphics including planet
+		triggerBack = false;
+		triggerBackCount = 30;
+	} else if (!triggerBack) {
+		triggerBackCount--;
+		if(triggerBackCount == 0){
+		    applyColorFilterBackground(0);
+			disableColorFilterInvert(); //all graphics including planet
+		    triggerBack = true;
+		}
+	}
+
+	if(triggerStars && applyColorFilterStars(bassLevel)){		
+		triggerStars = false;
+		triggerStarsCount = 30;
+	} else if (!triggerStars) {
+		triggerStarsCount--;
+		if(triggerStarsCount == 0){
+		    applyColorFilterStars(0);
+		    triggerStars = true;
+		}
+	}
 
     system.addParticle();
 }
-
+/*
 function triggerWithThrottle(threshold, callback, callback2, reset){
 
 	var trigger = true;
@@ -113,7 +122,7 @@ function triggerWithThrottle(threshold, callback, callback2, reset){
 		}
 	}
 
-};
+};*/
 
 var Color = function(r,g,b){
 	this.r = r;
