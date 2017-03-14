@@ -1,4 +1,4 @@
-function youtubeAudio(link){
+function youtubeAudio(link, duration){
   this.player = new window.Audio(link);
   this.player.preload = 'metadata';
   this.player.setAttribute("id", "audioPlayer");
@@ -32,14 +32,12 @@ function youtubeAudio(link){
       }
     }
   };
-
-/*these break after the song finishes and restarts*/
-this.jumpTo = function(time){
-  var player = document.getElementById("audioPlayer");
-    console.log("b",player.currentTime);
-    player.currentTime = time;
-    console.log("a",player.currentTime);
-}
+  //jumps a % into song (e.g. seek(50) jumps to halfway into the song)
+  this.seek = function(percent){
+    var player = document.getElementById("audioPlayer");
+      player.currentTime = percent/100 * duration;
+  }
+/*
   this.forward = function(){
     var player = document.getElementById("audioPlayer");
     console.log("b",player.currentTime);
@@ -52,6 +50,7 @@ this.jumpTo = function(time){
     player.currentTime -= 5;
     console.log("a",player.currentTime);
   }
+*/
 
   document.getElementById('button-container').appendChild(this.button);
 
@@ -69,7 +68,6 @@ this.jumpTo = function(time){
   };
 
   this.onEndedCallback = function(){
-    console.log(this);
     this.player.remove();
     this.player = new window.Audio(link);
     this.player.preload = 'metadata';

@@ -15,17 +15,35 @@ var fft;
 var winWidth = window.innerWidth;
 var winHeight = window.innerHeight;
 
+function preload(){
+	var ytLink = window.location.href.replace(/.*\//g, "youtube.com/");
+	var linkIndex = ytLink.indexOf('watch?v=');
+	var watchStr = ytLink.substr(linkIndex+8);
+	var url1 = ("https://www.googleapis.com/youtube/v3/videos?id=" +
+	 watchStr + "&key=AIzaSyA8Qk6dVeO2sGMH2cX5ujy5z6Xii3wTv5U&part=contentDetails")
+	$.ajax({
+	    async: true,
+	    type: 'GET',
+	    url: url1,
+	    success: function(data) {
+	        if (data.items.length > 0) {
+	            duration = convert_time(data.items[0].contentDetails.duration)
+	            mic = new youtubeAudio(ytLink, duration);
+				mic.play();
+				loop();
+	        }
+	    }
+	});
+}
+
 function setup(){
 	c = createCanvas(winWidth, winHeight);
 	c.parent("background-stars");
 	system = new ParticleSystem(400, 15);
 
-  mic = new youtubeAudio(window.location.href.replace(/.*\//g, "youtube.com/"));
-	mic.play();
-
 	if(RingAnimator.checkCompatible())
 		RingAnimator.init(mic);
-
+	noLoop();
 }
 
 function draw() {
@@ -132,6 +150,42 @@ function getMean(arr, n) {
   return sum / n;
 }
 
+function convert_time(duration) {
+    var a = duration.match(/\d+/g);
+
+    if (duration.indexOf('M') >= 0 && duration.indexOf('H') == -1 && duration.indexOf('S') == -1) {
+        a = [0, a[0], 0];
+    }
+
+    if (duration.indexOf('H') >= 0 && duration.indexOf('M') == -1) {
+        a = [a[0], 0, a[1]];
+    }
+    if (duration.indexOf('H') >= 0 && duration.indexOf('M') == -1 && duration.indexOf('S') == -1) {
+        a = [a[0], 0, 0];
+    }
+
+    duration = 0;
+
+    if (a.length == 3) {
+        duration = duration + parseInt(a[0]) * 3600;
+        duration = duration + parseInt(a[1]) * 60;
+        duration = duration + parseInt(a[2]);
+    }
+
+    if (a.length == 2) {
+        duration = duration + parseInt(a[0]) * 60;
+        duration = duration + parseInt(a[1]);
+    }
+
+    if (a.length == 1) {
+        duration = duration + parseInt(a[0]);
+    }
+    var h = Math.floor(duration / 3600);
+    var m = Math.floor(duration % 3600 / 60);
+    var s = Math.floor(duration % 3600 % 60);
+    //return ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + m + ":" + (s < 10 ? "0" : "") + s);
+    return h*3600 + m*60 + s;
+}
 
 // var player;
 // var fftbins;
