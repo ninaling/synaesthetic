@@ -86,26 +86,26 @@ function draw() {
     //colorizeStars(bassLevel, invert);
 
 	//Triggers the background color change on base
-	if(triggerBack && applyColorFilterBackground(bassLevel)){
-		applyColorFilterInvert(bassLevel, invert); //all graphics including planet
+	if(triggerBack && applyColorFilterBackground(bassLevel, invert)){
+		// applyColorFilterInvert(bassLevel, 0); //all graphics including planet
 		triggerBack = false;
 		triggerBackCount = 30;
 	} else if (!triggerBack) {
 		triggerBackCount--;
 		if(triggerBackCount == 0){
-	    applyColorFilterBackground(0);
-			disableColorFilterInvert(); //all graphics including planet
+	    applyColorFilterBackground(0, 0);
+			// disableColorFilterInvert(); //all graphics including planet
 	    triggerBack = true;
 		}
 	}
 
-	if(triggerStars && applyColorFilterStars(bassLevel)){
+	if(triggerStars && applyColorFilterStars(bassLevel, invert)){
 		triggerStars = false;
 		triggerStarsCount = 30;
 	} else if (!triggerStars) {
 		triggerStarsCount--;
 		if(triggerStarsCount == 0){
-		    applyColorFilterStars(0);
+		    applyColorFilterStars(0, 0);
 		    triggerStars = true;
 		}
 	}

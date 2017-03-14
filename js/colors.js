@@ -7,21 +7,27 @@ var webGLElement = document.getElementById("webgl");
 function applyColorFilterInvert(bassLevel, invert) {
   if (bassLevel > 240) {
     if (invert < 2) {
-      allContent.style.filter = "invert(1) saturate(100deg)";
+      var filterStyle = "invert(1) hue-rotate(10deg)";
+      allContent.style.filter = filterStyle;
+      allContent.style.webkitFilter = filterStyle;
     }
     else if (invert == 2) {
-      allContent.style.filter = "invert(1) grayscale(1)";
+      var filterStyle = "invert(1) grayscale(1)";
+      allContent.style.filter = filterStyle;
+      allContent.style.webkitFilter = filterStyle;
     }
   }
 }
 
 function disableColorFilterInvert(){
-  allContent.style.filter = "invert(0) hue-rotate(0deg) grayscale(0)";
+  var filterStyle = "invert(0) hue-rotate(0deg) grayscale(0)";
+  allContent.style.filter = filterStyle;
+  allContent.style.webkitFilter = filterStyle;
 }
 
 var applyColorFilterBackground = (function (){
   var sat = 0;
-  return function (bassLevel) {
+  return function (bassLevel, invert) {
       var style = "";
       if (bassLevel > 240) {
         sat += 2;
@@ -30,19 +36,27 @@ var applyColorFilterBackground = (function (){
         var i = Math.floor(Math.random() * colorFilters.length);
 
         style += "hue-rotate(" + colorFilters[i] + "deg) ";
+        if (invert < 2) {
+          style += "invert(1) hue-rotate(10deg) ";
+        }
+        else if (invert == 2) {
+          style += "invert(1) grayscale(1) ";
+        }
         style += "saturate(" + sat + ")";
 
         backgroundStars.style.filter = style;
+        backgroundStars.style.webkitFilter = style;
         return true;
       }
       backgroundStars.style.filter = style;
+      backgroundStars.style.webkitFilter = style;
       return false;
     };
 })();
 
 var applyColorFilterStars = (function (){
   var sat = 0;
-  return function (bassLevel) {
+  return function (bassLevel, invert) {
     var style = "";
 
     if (bassLevel > 240) {
@@ -52,11 +66,19 @@ var applyColorFilterStars = (function (){
       var i = Math.floor(Math.random() * colorFilters.length);
 
       style += "hue-rotate(" + colorFilters[i] + "deg) ";
+      if (invert < 2) {
+        style += "invert(1) hue-rotate(10deg) ";
+      }
+      else if (invert == 2) {
+        style += "invert(1) grayscale(1) ";
+      }
       style += "saturate(" + sat + ")";
       webGLElement.style.filter = style;
+      webGLElement.style.webkitFilter = style;
       return true;
     }
     webGLElement.style.filter = style;
+    webGLElement.style.webkitFilter = style;
     return false;
   };
 })();
