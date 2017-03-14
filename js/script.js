@@ -21,6 +21,9 @@ var triggerStars = true;
 var triggerStarsCount = 0;
 var triggerStarsFlicker = 5;
 
+var colorizeBackground = triggerWithThrottle(30, applyColorFilterBackground, applyColorFilterInvert, disableColorFilterInvert);
+var colorizeStars = triggerWithThrottle(30, applyColorFilterStars, null, null);
+
 function setup(){
 	c = createCanvas(winWidth, winHeight);
 	c.parent("background-stars");
@@ -35,7 +38,7 @@ function setup(){
 }
 
 function draw() {
-  c.size(window.innerWidth, window.innerHeight);
+    c.size(window.innerWidth, window.innerHeight);
 
 	var spectrum = mic.FFT();
 	var bassLevel = mic.getBass();
@@ -61,39 +64,56 @@ function draw() {
 	background(darkPurple);
 	system.run(props);
 
-	var invert = Math.floor(Math.random() * 7);
-  //Triggers the background color change on base
-	if(triggerBack && applyColorFilterBackground(bassLevel)){
-		applyColorFilterInvert(bassLevel, invert); //all graphics including planet
-    triggerBack = false;
-    triggerBackCount = 30;
-  } else if (!triggerBack) {
-    triggerBackCount--;
-    if(triggerBackCount == 0){
-        applyColorFilterBackground(0);
-				disableColorFilterInvert(); //all graphics including planet
-        triggerBack = true;
-    }
-  }
+	var invert = 0;
+    colorizeBackground(bassLevel, invert);
+    colorizeStars(bassLevel, invert);
 
-  //Triggers Star color change on base
-  if(triggerStars && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
-      triggerStarsFlicker--;
-      if(triggerStarsFlicker == 0){
-          triggerStarsCount = 30;
-          triggerStars == false;
-      }
-  } else if (!triggerStars){
-      triggerStarsCount--;
-      if(triggerStarsCount == 0){
-          applyColorFilterStars(0);
-          triggerStars = true;
-          triggerStarsFlicker = 5;
-      }
-  }
+    //Triggers Star color change on base
+  /*  if(triggerStars && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
+        triggerStarsFlicker--;
+        if(triggerStarsFlicker == 0){
+            triggerStarsCount = 30;
+            triggerStars == false;
+        }
+    } else if (!triggerStars){
+        triggerStarsCount--;
+        if(triggerStarsCount == 0){
+            applyColorFilterStars(0);
+            triggerStars = true;
+            triggerStarsFlicker = 5;
+        }
+    }*/
 
-  system.addParticle();
+    system.addParticle();
 }
+
+function triggerWithThrottle(threshold, callback, callback2, reset){
+
+	var trigger = true;
+	var curCount = 0;
+
+	return function(bassLevel, invert){
+		if(trigger && callback(bassLevel)){
+			if(callback2 != null){
+				console.log(callback2)
+				callback2(bassLevel, invert);
+				console.log('inverting')
+			}
+			trigger = false;
+			curCount = threshold;
+		}
+		else if(!trigger){
+			if(reset != null)
+				reset();
+			curCount--;
+			if(curCount <= 0){
+				callback(0);
+				trigger = true;
+			}
+		}
+	}
+
+};
 
 var Color = function(r,g,b){
 	this.r = r;
