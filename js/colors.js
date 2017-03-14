@@ -4,27 +4,6 @@ var allContent = document.getElementById("graphics");
 var backgroundStars = document.getElementById("background-stars");
 var webGLElement = document.getElementById("webgl");
 
-function applyColorFilterInvert(bassLevel, invert) {
-  if (bassLevel > 240) {
-    if (invert < 2) {
-      var filterStyle = "invert(1) hue-rotate(10deg)";
-      allContent.style.filter = filterStyle;
-      allContent.style.webkitFilter = filterStyle;
-    }
-    else if (invert == 2) {
-      var filterStyle = "invert(1) grayscale(1)";
-      allContent.style.filter = filterStyle;
-      allContent.style.webkitFilter = filterStyle;
-    }
-  }
-}
-
-function disableColorFilterInvert(){
-  var filterStyle = "invert(0) hue-rotate(0deg) grayscale(0)";
-  allContent.style.filter = filterStyle;
-  allContent.style.webkitFilter = filterStyle;
-}
-
 var applyColorFilterBackground = (function (){
   var sat = 0;
   return function (bassLevel, invert) {

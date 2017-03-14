@@ -87,14 +87,12 @@ function draw() {
 
 	//Triggers the background color change on base
 	if(triggerBack && applyColorFilterBackground(bassLevel, invert)){
-		// applyColorFilterInvert(bassLevel, 0); //all graphics including planet
 		triggerBack = false;
 		triggerBackCount = 30;
 	} else if (!triggerBack) {
 		triggerBackCount--;
 		if(triggerBackCount == 0){
 	    applyColorFilterBackground(0, 0);
-			// disableColorFilterInvert(); //all graphics including planet
 	    triggerBack = true;
 		}
 	}
