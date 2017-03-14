@@ -57,7 +57,7 @@ var GalaxyAnimator = (function() {
 
     function initAllObjects(){
 
-        planet = new Models.planet({
+        planet = new GalaxyModels.planet({
                     radius: radius,
                     segments: segmentsArr[curSegmentIndex],
                     color: '#ed4c51',
@@ -66,7 +66,7 @@ var GalaxyAnimator = (function() {
 
         scene.add(planet.obj);
 
-        orbitPath = new Models.orbit({
+        orbitPath = new GalaxyModels.orbit({
                         radius: 4,
                         segments: 500,
                         color: '#ffffff',
@@ -77,7 +77,7 @@ var GalaxyAnimator = (function() {
 
         for(var i = 0; i < 22; i++)
         {
-            var cube = new Models.cube(0.1 * Math.random(), '#62c2bc');
+            var cube = new GalaxyModels.cube(0.1 * Math.random(), '#62c2bc');
             orbitPath.add(cube);
         }
 
@@ -88,14 +88,22 @@ var GalaxyAnimator = (function() {
 
         if (!isPlaying) return;
 
-        var amp = micIn.getAmplitude();
-        var bass = micIn.getBass();
-        var centroid = micIn.getCentroid();
+        var mic = {
+            amp: micIn.getAmplitude(),
+            bass: micIn.getBass(),
+            treble: micIn.getTreble(),
+            centroid: micIn.getCentroid()
+        }
 
-        handlePeak(bass, null);
+        handlePeak(mic.bass, null);
 
-        orbitPath.update(afterFirstRender, amp, bass, centroid);
-        planet.update(amp, bass, centroid);
+        orbitPath.update({
+                            breakpoints: [160, 220],
+                            speeds: [1,3,5]
+
+                         }, mic, afterFirstRender);
+
+        planet.update(mic);
 
         requestAnimationFrame(function(micIn){
             render(micIn);

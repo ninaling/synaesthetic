@@ -1,13 +1,13 @@
 
-var Models = (function(){
+var GalaxyModels = (function(){
 
     var winWidth = window.innerWidth;
     var winHeight = window.innerHeight;
 
-    /*
+    /*******************************************
     * Pure Three.JS objects
-    * Abstract within this Model
-    */
+    * "Abstract" within this Model
+    ********************************************/
 
 	function createSphere(radius, segments, color) {
     	return new THREE.Mesh(
@@ -48,12 +48,18 @@ var Models = (function(){
     		);
     }
 
-    /*
-    * Space / Galaxy Objects
-    * Planets, Orbit with Objects, Cube
-    */
+    /***************************************************
+    **** Space / Galaxy Objects
+    **** Planets, Orbit with Objects, Cube
+    ***************************************************/
 
-    //radius, segments, color, ringColor
+
+    /* @param props     {object}
+        * radius        {float} 
+        * segments      {int}
+        * color         {string} hex value
+        * ringColor     {string} hex value
+    * */
     var Planet = function(props, rotationSphere, rotationRing, scale){
        this.create(props, rotationSphere, rotationRing, scale);
     }
@@ -87,10 +93,15 @@ var Models = (function(){
         this.obj.add(this.rings);   
     }
 
-    Planet.prototype.update = function(amp, bass, centroid){
+    /*
+    * @param mic {object} of amplitude, bass, treble, and centroid
+    */
+    Planet.prototype.update = function(mic){
 
-        var scaleFactor         = 1 + bass / 200;
-        var rotationFactor      = amp / 2560;
+        var scaleFactor         = 1 + mic.bass / 200;
+        var rotationFactor      = mic.bass > 150 
+                                    ? mic.amp / 2560
+                                    : mic.amp / 10000;
 
         this.rings.scale.x      = scaleFactor;
         this.rings.scale.z      = scaleFactor;
@@ -102,6 +113,10 @@ var Models = (function(){
         this.obj.rotation.y     += rotationFactor * 3;
     }
 
+    /*
+    * removes this object from scene, and re-adds with cloned properties,
+    * replacing only segments property
+    */
     Planet.prototype.changeSegments = function(scene, segments){
         if(segments != this.segments){
             this.segments = segments;
@@ -124,7 +139,18 @@ var Models = (function(){
         }
     }
 
-    //radius, segs, color
+    /*
+    * Orbit constructor
+    * @param props {object}
+        * radius   {float} 
+        * segments {int}
+        * color    {string} hex value
+        * spacing  {int} space between orbiting objects
+        * rotation {float} range 0 <-> 2 * Math.PI
+        * speed    {int}
+    *
+    * @param hasNoise {bool} whether to add noise
+    */
     var Orbit = function(props, hasNoise){
 
         this.radius             = props.radius;
@@ -135,6 +161,8 @@ var Models = (function(){
         this.dir                = 1;
         this.stopped            = 1;
         this.hasNoise           = hasNoise;
+        this.curSpeedTier       = 0;
+        this.isSwitchingDir     = false;
 
         this.orbitingObjects    = [];
 
@@ -165,37 +193,73 @@ var Models = (function(){
         this.rollwindow = 10;
 
         var avg = this.noiseForPath.slice(0,this.rollwindow).reduce(function(acc, val){ return acc+val;}, 0)*1.0/this.rollwindow;
+        
+        var that = this;
         this.smoothnoise = this.noiseForPath.map(function(val, i){
-            avg += this.noiseForPath[(i+this.rollwindow) % this.noiseForPath.length]*1.0/this.rollwindow;
-            avg -= this.noiseForPath[i]*1.0/this.rollwindow;
+            avg += that.noiseForPath[(i+this.rollwindow) % that.noiseForPath.length]*1.0/that.rollwindow;
+            avg -= that.noiseForPath[i]*1.0/that.rollwindow;
             return avg;
         });
     }
 
+    /*
+    * Adds objects to the orbital.
+    * @param orbitingObj {object}
+        * must have an update(mic) function
+    */
     Orbit.prototype.add = function(orbitingObj){
         this.orbitingObjects.push(orbitingObj);
         this.obj.add(orbitingObj.obj);
     }
 
-    Orbit.prototype.update = function(afterFirstRender, amp, bass, centroid){
+    /*
+    * Keeps track of switching dir to throttle repeat successive calls
+    */
+    Orbit.prototype.switchDir = function(){
+        if(!this.isSwitchingDir)
+            this.dir *= -1;
+        this.isSwitchingDir = true;
+    }
+
+    /*
+    * Updates orbit properties on each call
+    * @param props {object}
+        * holds array size n of breakpoints,
+        * array size n + 1 of speeds
+    * @param mic {object} of amplitude, bass, treble, and centroid
+    */
+    Orbit.prototype.update = function(props, mic, afterFirstRender){
+
+        //boundary conditions
+        if(props.breakpoints.length != props.speeds.length - 1)
+            return;
 
         if (afterFirstRender)
             this.obj.geometry.verticesNeedUpdate = true;
 
-        if(this.hasNoise)
+        if(mic.bass > 240 || mic.bass < 100)
+            this.switchDir();
+
+        this.stopped = mic.bass < 100 ? 0 : 1;
+
+
+        //update properties according to speeds and breakpoints from props
+        for(var i = 0; i < props.speeds.length; i++)
         {
-            for (var i = 0; i < this.smoothnoise.length; i++) {
-                this.obj.geometry.vertices[i].setZ(this.smoothnoise[i] * amp / 100);
-                //orbitPath.geometry.vertices[i].setX(smoothnoise[i] * amp / 100);
-                //orbitPath.geometry.vertices[i].setY(smoothnoise[i] * amp / 100);
+            if((i == props.breakpoints.length) || (mic.bass < props.breakpoints[i]))
+            {
+                this.speed = props.speeds[i];
+                if(this.curSpeedTier != i)
+                    this.switchDir();
+                else
+                    this.isSwitchingDir = false;
+
+                this.curSpeedTier = i;
+                break;
             }
         }
 
-        if(bass > 240 || bass < 100)
-            this.dir *= -1;
-
-        this.stopped = bass < 100 ? 0 : 1;
-
+        //actually update orbit object speeds
         this.orbitIndex = (this.orbitIndex + this.speed * this.dir * this.stopped) % this.geometry.vertices.length;
         var tempIndex = this.orbitIndex > 0 ? this.orbitIndex : this.orbitIndex + this.geometry.vertices.length;
         
@@ -210,13 +274,21 @@ var Models = (function(){
             tempIndex = (tempIndex + this.spacing) % this.geometry.vertices.length;
             tempIndex = tempIndex > 0 ? tempIndex : (tempIndex + this.geometry.vertices.length);
             
-            curObj.update(amp, bass, centroid);
+            curObj.update(mic);
         }
 
-        var rotationFactor      = amp / 25600;
+        var rotationFactor    = mic.amp / 25600;
         
         this.obj.rotation.x   += rotationFactor * 2;
         this.obj.rotation.y   += rotationFactor * 3;
+
+        //update noise stuff
+        if(this.hasNoise)
+        {
+            for (var i = 0; i < this.smoothnoise.length; i++) {
+                this.obj.geometry.vertices[i].setZ(this.smoothnoise[i] * mic.amp / 100);
+            }
+        }
     }
 
     var Cube = function(length, color){
@@ -228,13 +300,10 @@ var Models = (function(){
         this.obj.position.y = 0;
     }
     
-    Cube.prototype.isDead = function(){
-        return false;
-    }
 
-    Cube.prototype.update = function(amp, bass, centroid){
-        var scaleFactor = 1 + bass / (100 + Math.random() * 100);
-        var rotationFactor = amp / 2560;
+    Cube.prototype.update = function(mic){
+        var scaleFactor = 1 + mic.bass / (100 + Math.random() * 100);
+        var rotationFactor = mic.amp / 2560;
 
         this.obj.scale.x = scaleFactor;
         this.obj.scale.y = scaleFactor;
@@ -243,29 +312,6 @@ var Models = (function(){
         this.obj.rotation.x += rotationFactor * 1;
         this.obj.rotation.y += rotationFactor * 2;
     }
-/*
-    var CubeSystem = function(num, size){
-        this.cubes = [];
-        this.maxCubes = num;
-        this.cubeSize = size;
-    }
-
-    CubeSystem.prototype.addCube = function() {
-        if(this.cubes.length < this.maxCubes)
-            this.particles.push(new Cube(this.cubeSize));
-    };
-
-    CubeSystem.prototype.addAll = function(props) {
-        for (var i = this.cubes.length-1; i >= 0; i--) {
-
-            var c = this.cubes[i];
-            c.add();
-
-            if (c.isDead()){
-                this.cubes.splice(i, 1);
-            }
-        }
-    };*/
 
     return {
         planet: Planet,
