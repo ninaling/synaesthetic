@@ -150,11 +150,46 @@ a{
 	z-index: 100;
 }
 
+#button-container, #info{
+	cursor: pointer;
+}
+
 #button-container {
-	padding: 20px;
+	margin: 20px;
 	opacity: 1;
 	transition: all .5s ease;
 	z-index: 10;
+}
+
+#info{
+	color: #fff;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+#info .info-inner{
+	position: absolute;
+    right: 20px;
+    text-align: right;
+    background: black;
+    padding: 20px;
+    width: 150px;
+    pointer-events: none;
+    opacity: 0;
+    -webkit-transition: opacity 0.2s ease;
+    		transition: opacity 0.2s ease;
+}
+
+#info:hover .info-inner{
+	opacity: 1;
+}
+
+#info h4{
+	font-size: 60px;
+}
+
+#info p{
+	font-size: 14px;
 }
 
 /*===============CONTENT===============*/
