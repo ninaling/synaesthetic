@@ -65,6 +65,43 @@ body #webgl {
 	width: 190%;
 }
 
+#cl-logo{
+	width: 100px;
+    position: absolute;
+    top: 50%;
+    margin-top: -150px;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    		transform: translateX(-50%);
+}
+
+.suggestions{
+	top: 50%;
+    position: absolute;
+    z-index: 10000;
+    color: #fff;
+    margin-top: 150px;
+    left: 50%;
+    text-align: center;
+    font-family: sans-serif;
+    line-height: 25px;
+    font-size: 12px;
+    vertical-align: middle;
+    -webkit-transform: translateX(-50%);
+    		transform: translateX(-50%);
+}
+
+.icon{
+	height: 10px;
+	margin-right: 5px;
+	line-height: 25px;
+}
+
+.suggestions span{
+	margin-top: 2px;
+    display: inline-block;
+}
+
 @keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }
