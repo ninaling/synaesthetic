@@ -81,9 +81,7 @@ function draw() {
 	updateProgressBar();
 	system.run(props);
 
-	var invert = Math.floor(Math.random() * 10);
-    //colorizeBackground(bassLevel, invert);
-    //colorizeStars(bassLevel, invert);
+	var invert = Math.floor(Math.random() * 12);
 
 	//Triggers the background color change on base
 	if(triggerBack && applyColorFilterBackground(bassLevel, invert)){
@@ -92,7 +90,7 @@ function draw() {
 	} else if (!triggerBack) {
 		triggerBackCount--;
 		if(triggerBackCount == 0){
-	    applyColorFilterBackground(0, 0);
+	    // applyColorFilterBackground(0, 0);
 	    triggerBack = true;
 		}
 	}
@@ -103,7 +101,7 @@ function draw() {
 	} else if (!triggerStars) {
 		triggerStarsCount--;
 		if(triggerStarsCount == 0){
-		    applyColorFilterStars(0, 0);
+		    // applyColorFilterStars(0, 0);
 		    triggerStars = true;
 		}
 	}

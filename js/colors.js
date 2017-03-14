@@ -10,7 +10,7 @@ var applyColorFilterBackground = (function (){
       var style = "";
       if (bassLevel > 240) {
         sat += 2;
-        if(sat > 7)
+        if(sat > 11)
             sat = 1;
         var i = Math.floor(Math.random() * colorFilters.length);
 
@@ -40,7 +40,7 @@ var applyColorFilterStars = (function (){
 
     if (bassLevel > 240) {
       sat++;
-      if(sat > 6)
+      if(sat > 9)
           sat = 1;
       var i = Math.floor(Math.random() * colorFilters.length);
 
