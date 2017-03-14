@@ -21,6 +21,9 @@ var triggerStars = true;
 var triggerStarsCount = 0;
 var triggerStarsFlicker = 5;
 
+var colorizeBackground = triggerWithThrottle(30, applyColorFilterBackground);
+var colorizeStars = triggerWithThrottle(30, applyColorFilterStars);
+
 function setup(){
 	c = createCanvas(winWidth, winHeight);
 	c.parent("background-stars");
@@ -35,7 +38,7 @@ function setup(){
 }
 
 function draw() {
-  c.size(window.innerWidth, window.innerHeight);
+    c.size(window.innerWidth, window.innerHeight);
 
 	var spectrum = mic.FFT();
 	var bassLevel = mic.getBass();
@@ -61,20 +64,11 @@ function draw() {
 	background(darkPurple);
 	system.run(props);
 
-    //Triggers the background color change on base
-    if(triggerBack && applyColorFilterBackground(bassLevel)){
-        triggerBack = false;
-        triggerBackCount = 30;
-    } else if (!triggerBack) {
-        triggerBackCount--;
-        if(triggerBackCount == 0){
-            applyColorFilterBackground(0);
-            triggerBack = true;
-        }
-    }
+    colorizeBackground(bassLevel);
+    colorizeStars(bassLevel);
 
     //Triggers Star color change on base
-    if(triggerStars && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
+  /*  if(triggerStars && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
         triggerStarsFlicker--;
         if(triggerStarsFlicker == 0){
             triggerStarsCount = 30;
@@ -87,15 +81,31 @@ function draw() {
             triggerStars = true;
             triggerStarsFlicker = 5;
         }
-    }
-    //applyColorFilterStars(bassLevel);
-    //applyColorFilterBackground(bassLevel);
-	//setTimeout(function(){
-    //    applyColorFilter(bassLevel);//Call every 5 seconds after being called
-    //    console.log('setTimeout');
-    //}, 5000);
+    }*/
+
     system.addParticle();
 }
+
+function triggerWithThrottle(threshold, callback){
+
+	var trigger = true;
+	var curCount = 0;
+
+	return function(bassLevel){
+		if(trigger && callback(bassLevel)){
+			trigger = false;
+			curCount = threshold;
+		}
+		else if(!trigger){
+			curCount--;
+			if(curCount <= 0){
+				callback(0);
+				trigger = true;
+			}
+		}
+	}
+
+};
 
 var Color = function(r,g,b){
 	this.r = r;
