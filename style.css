@@ -42,7 +42,7 @@ body #webgl {
 
     -webkit-transform: translate(-50%,-50%);
     		transform: translate(-50%,-50%);
-    
+
     -webkit-transition: all 1s ease;
     		transition: all 1s ease;
 }
@@ -61,9 +61,9 @@ body #webgl {
 	pointer-events: auto;
 }
 
-.logo-link:hover #logo-container video{
+/*.logo-link:hover #logo-container video{
 	width: 190%;
-}
+}*/
 
 @keyframes fadein {
     from { opacity: 0; }
