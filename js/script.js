@@ -61,40 +61,38 @@ function draw() {
 	background(darkPurple);
 	system.run(props);
 
-    //Triggers the background color change on base
-    if(triggerBack && applyColorFilterBackground(bassLevel)){
-        triggerBack = false;
-        triggerBackCount = 30;
-    } else if (!triggerBack) {
-        triggerBackCount--;
-        if(triggerBackCount == 0){
-            applyColorFilterBackground(0);
-            triggerBack = true;
-        }
+	var invert = Math.floor(Math.random() * 10);
+  //Triggers the background color change on base
+	if(triggerBack && applyColorFilterBackground(bassLevel)){
+		applyColorFilterInvert(bassLevel, invert); //all graphics including planet
+    triggerBack = false;
+    triggerBackCount = 30;
+  } else if (!triggerBack) {
+    triggerBackCount--;
+    if(triggerBackCount == 0){
+        applyColorFilterBackground(0);
+				disableColorFilterInvert(); //all graphics including planet
+        triggerBack = true;
     }
+  }
 
-    //Triggers Star color change on base
-    if(triggerStars && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
-        triggerStarsFlicker--;
-        if(triggerStarsFlicker == 0){
-            triggerStarsCount = 30;
-            triggerStars == false;
-        }
-    } else if (!triggerStars){
-        triggerStarsCount--;
-        if(triggerStarsCount == 0){
-            applyColorFilterStars(0);
-            triggerStars = true;
-            triggerStarsFlicker = 5;
-        }
-    }
-    //applyColorFilterStars(bassLevel);
-    //applyColorFilterBackground(bassLevel);
-	//setTimeout(function(){
-    //    applyColorFilter(bassLevel);//Call every 5 seconds after being called
-    //    console.log('setTimeout');
-    //}, 5000);
-    system.addParticle();
+  //Triggers Star color change on base
+  if(triggerStars && applyColorFilterStars(bassLevel) && triggerStarsFlicker > 0){
+      triggerStarsFlicker--;
+      if(triggerStarsFlicker == 0){
+          triggerStarsCount = 30;
+          triggerStars == false;
+      }
+  } else if (!triggerStars){
+      triggerStarsCount--;
+      if(triggerStarsCount == 0){
+          applyColorFilterStars(0);
+          triggerStars = true;
+          triggerStarsFlicker = 5;
+      }
+  }
+
+  system.addParticle();
 }
 
 var Color = function(r,g,b){
