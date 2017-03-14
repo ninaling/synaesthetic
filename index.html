@@ -7,7 +7,6 @@
 	<title>Synaesthetic</title>
 
 	<script type="text/javascript" src="/js/vendor/p5.js"></script>
-	<script type="text/javascript" src="/js/vendor/p5.dom.js"></script>
 
 	<style>
 
@@ -80,6 +79,12 @@
 			</div>
 		</div>
 	</div>
+	
+	<audio autoplay loop id="background-audio">
+	  <source src="/assets/fearless.mp3" type="audio/ogg">
+	  Your browser does not support the audio tag.
+	</audio>
+
 
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	<script src="https://apis.google.com/js/api.js"></script>
@@ -91,11 +96,13 @@
 $(document).ready(function(){
 
 	setTimeout(function(){
-
 		$('.logo-link').addClass('active');
-
 	}, 3000);
 
+	//for firefox
+	$('#background-audio').on('ended', function(){
+	    this.currentTime = 0;
+	}, false);
 
 });
 </script>
