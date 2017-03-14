@@ -47,8 +47,9 @@ function setup(){
 }
 
 function draw() {
+	background(darkPurple);
   c.size(window.innerWidth, window.innerHeight);
-
+	updateProgressBar();
 	var spectrum = mic.FFT();
 	var bassLevel = mic.getBass();
 
@@ -61,10 +62,29 @@ function draw() {
 		bassLevelMultiplier: bassLevelMultiplier
 	};
 
-	background(darkPurple);
 	system.run(props);
 	applyColorFilter(bassLevel);
 	system.addParticle();
+
+}
+
+function updateProgressBar(){
+	//get current %
+	var position = mic.currentTime();
+	//draw from left to % of screen in bottom 10px
+	push();
+	colorMode(RGB);
+	strokeWeight(10);
+	stroke(255);
+	line(0, height-5, position*width, height-5);
+	pop();
+}
+
+function mouseClicked(){
+	console.log (mouseX / width);
+	if(mouseY > height-10){
+		mic.seek(mouseX*100 / width);
+	}
 }
 
 var Particle = function(radius){

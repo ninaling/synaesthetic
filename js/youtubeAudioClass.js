@@ -11,6 +11,13 @@ function youtubeAudio(link, duration){
   this.button.setAttribute('src', '../assets/play-icon.svg');
   this.button.setAttribute('id', 'play-pause-button');
   this.button.style.width = "35px";
+/*
+  this.slider = document.createElement("INPUT");
+  this.slider.setAttribute("type", "range");
+  this.slider.setAttribute("min", "0.1");
+  this.slider.setAttribute("max", ".99");
+  this.slider.setAttribute("value", "0");
+  */
 
   this.button.addEventListener('click', function(e){
     toggleSong(true, e);
@@ -34,8 +41,14 @@ function youtubeAudio(link, duration){
   };
   //jumps a % into song (e.g. seek(50) jumps to halfway into the song)
   this.seek = function(percent){
+    if(this.currentTime() > 95) return;
     var player = document.getElementById("audioPlayer");
-      player.currentTime = percent/100 * duration;
+    player.currentTime = percent/100 * duration;
+  }
+  //returns current % into duration of song
+  this.currentTime = function(){
+    var player = document.getElementById("audioPlayer");
+    return (player.currentTime-0.07) / duration;
   }
 /*
   this.forward = function(){
@@ -119,6 +132,7 @@ function youtubeAudio(link, duration){
   };
 
   this.FFT = function(){
+
     this.analyser.getByteFrequencyData(this.frequencyData);
     return this.frequencyData;
   };
