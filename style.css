@@ -27,15 +27,42 @@ body #webgl {
 }
 
 #logo-container {
+	overflow: hidden;
+	height: 200px;
+	width: 35%;
 	display: -webkit-flex;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
+	left: 50%;
+    top: 50%;
+    border: 1px solid #f8de5c;
+    background: #2c042d;
+
+    -webkit-transform: translate(-50%,-50%);
+    		transform: translate(-50%,-50%);
+    
+    -webkit-transition: all 1s ease;
+    		transition: all 1s ease;
 }
 
 #logo-container video {
-	width: 70%;
+	width: 180%;
+	-webkit-transition: width 0.1s ease;
+			transition: width 0.1s ease;
+}
+
+.logo-link{
+	pointer-events: none;
+}
+
+.logo-link.active{
+	pointer-events: auto;
+}
+
+.logo-link:hover #logo-container video{
+	width: 190%;
 }
 
 @keyframes fadein {

@@ -28,16 +28,20 @@
 			z-index: 2;
 		}
 
+
+
 	</style>
 </head>
 
 <body>
-	<div id="logo-container">
-		<video autoplay>
-		  <source src="assets/logo-video.mp4" type="video/mp4">
-		  Your browser does not support the video tag.
-		</video>
-	</div>
+	<a class="logo-link"href="/watch?v=Tj0xMiFWfsQ">
+		<div id="logo-container">
+			<video autoplay>
+			  <source src="assets/logo-video.mp4" type="video/mp4">
+			  Your browser does not support the video tag.
+			</video>
+		</div>
+	</a>
 
 	<div id="graphics">
 		<div id="background-stars">
@@ -47,7 +51,7 @@
 	<div class="selection">
 		<div class="search-bar">
 			<form action="#">
-				<input class="search-input" type="text" name="search" placeholder="search for a song" autocomplete="off" />
+				<input class="search-input focus-fixed" type="text" name="search" placeholder="search for a song" autocomplete="off" />
 				<button class="btn search-btn" onclick="smartsearch = true">SEARCH</button>
 				<!--<button class="btn smart-btn" onclick="smartsearch = true">SUPER SMART SEARCH (with machine learning)</button>-->
 			</form>
@@ -60,9 +64,20 @@
 	<script src="https://apis.google.com/js/api.js"></script>
 	<script type="text/javascript" src="/js/youtubeSearch.js"></script>
 	<script src="https://apis.google.com/js/client.js?onload=init"></script>
-
-
 	<script type="text/javascript" src="/js/visuals.js"></script>
+
+<script>
+$(document).ready(function(){
+
+	setTimeout(function(){
+
+		$('.logo-link').addClass('active');
+
+	}, 3000);
+
+
+});
+</script>
 
 </body>
 </html>
