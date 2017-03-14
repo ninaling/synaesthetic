@@ -27,12 +27,11 @@ body #webgl {
 }
 
 #logo-container {
-	background-color: #2c042d;
 	display: -webkit-flex;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 #logo-container video {

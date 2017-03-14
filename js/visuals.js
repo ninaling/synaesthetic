@@ -2,7 +2,7 @@
 
 var system;
 var s;
-
+var c;
 var darkPurple = '#270227';
 
 var winWidth = window.innerWidth;
@@ -14,42 +14,15 @@ var fft;
 var bassLevelArr = [0, 0, 0, 0, 0];
 var i = 0;
 
-function preload(){
-	mic = loadSound('../assets/pluto.mp3');
-}
-
 function setup(){
-	createCanvas(winWidth, winHeight);
-	system = new ParticleSystem(400, 10);
-
-	//sound stuff
-	// mic = new p5.AudioIn();
-  // mic.start();
-	mic.play();
-
-  fft = new p5.FFT();
-  // fft.setInput(mic);
+	c = createCanvas(winWidth, winHeight);
+	c.parent("background-stars");
+	system = new ParticleSystem(800, 10);
 }
 
 function draw() {
-
-	var micLevel = mic.getLevel();
-	var spectrum = fft.analyze();
-	var bassLevel = fft.getEnergy("bass");
-	// bassLevelArr[i] = bassLevel > 230 ? (bassLevel - 110)/8 : 1;
-	console.log(bassLevel);
-  // if (i == 5) i = 0;
-  // else i++;
-
-	// var bassLevelMultiplierRolling = getMean(bassLevelArr, 5);
-
-	var bassLevelMultiplierRolling = bassLevel > 230 ? (bassLevel - 110)/8 : 1;
-	var props = {
-		bassLevelMultiplier: bassLevelMultiplierRolling
-	};
-
 	background(darkPurple);
-	system.run(props);
+	system.run();
 	system.addParticle();
 }
 
@@ -71,7 +44,7 @@ var Particle = function(radius){
 	//random generation again so large particles aren't all in southeast direction
 	this.generateRandom();
 
-	this.position = createVector(winWidth/2, winHeight/2);
+	this.position = createVector(mouseX, mouseY);
 	this.radius = this.radiusMax * (this.randomX + this.randomY) / 3.5;
 	this.opacity = (this.randomX + this.randomY) / 2.5;
 }
@@ -81,14 +54,13 @@ Particle.prototype.generateRandom = function(){
 	this.randomY = random(1);
 }
 
-Particle.prototype.run = function(bassLevelMultiplier){
-	this.update(bassLevelMultiplier);
+Particle.prototype.run = function(){
+	this.update();
 	this.display();
 }
 
-Particle.prototype.update = function(bassLevelMultiplier){
-	var tempVector = this.velocity.copy().mult(bassLevelMultiplier);
-	this.position.add(tempVector);
+Particle.prototype.update = function(){
+	this.position.add(this.velocity);
 }
 
 Particle.prototype.display = function(){
@@ -151,7 +123,7 @@ ParticleSystem.prototype.addParticle = function() {
 	// 	this.suns.push(new Sun(400));
 };
 
-ParticleSystem.prototype.run = function(props) {
+ParticleSystem.prototype.run = function() {
 
 	// for(var i = this.suns.length - 1; i >= 0; i--){
 	// 	var s = this.suns[i];
@@ -164,7 +136,7 @@ ParticleSystem.prototype.run = function(props) {
 	for (var i = this.particles.length-1; i >= 0; i--) {
 
 		var p = this.particles[i];
-		p.run(props.bassLevelMultiplier);
+		p.run();
 
 		if (p.isDead()){
 			this.particles.splice(i, 1);
