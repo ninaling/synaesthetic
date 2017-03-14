@@ -4,16 +4,13 @@
 }
 
 body{
+	background-color: #270227;
 }
 
 #container, #logo-container {
 	width: 100vw;
 	height: 100vh;
 	position: relative;
-}
-
-#container {
-	background-color: #270227;
 }
 
 #logo-container {
@@ -32,10 +29,14 @@ body{
 
 #logo-container .logo-link {
 	width: 35%;
+	margin-bottom: 80px;
 }
 
 #logo-container video {
 	width: 100%;
+	border: solid 3px white;
+	-webkit-filter: brightness(1.1);
+	filter: brightness(1.1);
 }
 
 #logo-container .cl-link {
@@ -158,14 +159,14 @@ a{
   text-align: left;
   background: black;
   padding: 18px;
-  width: 180px;
+  width: 240px;
   pointer-events: none;
   opacity: 0;
   -webkit-transition: opacity 0.2s ease;
   		transition: opacity 0.2s ease;
 }
 
-#info:hover .info-inner{
+#info:hover .info-inner {
 	opacity: 1;
 }
 
@@ -174,11 +175,11 @@ a{
 }
 
 #info p{
-	font-size: 12px;
+	font-size: 11px;
 }
 
 #info #info-contributors {
-	font-size: 9px;
+	font-size: 8px;
 }
 
 /*===============CONTENT===============*/
