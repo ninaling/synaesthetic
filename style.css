@@ -1,0 +1,44 @@
+* {
+  font-family: "Open Sans";
+}
+
+body {
+  background-color: #270227;
+  font-family: sans-serif;
+  color: white;
+  text-align: center;
+  padding: 20vh 20vw;
+}
+
+#logo-container #cl-link #cl-logo {
+  width: 15vw;
+}
+
+#logo-container video {
+  margin-top: 50px;
+  width: 50vw;
+  border: solid 3px white;
+}
+
+#contributors {
+  margin-top: 40px;
+  padding: 20px 200px;
+  font-size: 15px;
+}
+
+.point {
+  font-size: 20px;
+  margin: 40px 0;
+}
+
+.point h1 {
+  margin: 0;
+  padding: 0;
+  color: #ed4c51;
+}
+
+.point p {
+  margin: 0;
+  padding: 0;
+  color: #f8de5c;
+}
