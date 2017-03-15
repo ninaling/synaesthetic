@@ -15,7 +15,7 @@ var i = 0;
 
 function preload(){
 	soundFormats('ogg', 'mp3');
-	song = loadSound('/assets/Shivainn-Master-1.mp3');
+	song = loadSound('/assets/Dont-Take-My-Cookie.mp3');
 }
 
 function setup(){
