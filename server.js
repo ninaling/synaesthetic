@@ -6,7 +6,7 @@ var path = require('path');
 
 var app = express();
 
-process.on('uncaughtException', (err) => {console.log('exception caught:', err)});
+//process.on('uncaughtException', (err) => {console.log('exception caught:', err)});
 
 app.use(express.static(__dirname));
 
