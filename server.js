@@ -6,6 +6,8 @@ var path = require('path');
 
 var app = express();
 
+process.on('uncaughtException', (err) => {console.log('exception caught:', err)});
+
 app.use(express.static(__dirname));
 
 app.get(/^\/watch/, function (req, res) {
